@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # IMPULSE
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
@@ -57,3 +58,6 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+=======
+# IMPULSE
+>>>>>>> 7c0d453b01ab6ed06c7acc2e3fad1bb10c248401
