@@ -52,9 +52,19 @@ import { Router } from '@angular/router';
     </main>
   `,
   styles: [`
-    .header { padding: 32px 0; }
-    .subtitle { margin: 8px 0 16px; color: rgba(25,26,28,0.8); }
+    .header { padding: 32px 0; color: white; }
+    .header h1 { color: white; }
+    .subtitle { margin: 8px 0 16px; color: rgba(255,255,255,0.9); }
     .form-group { margin: 12px 0; }
+    .form-group ::ng-deep .mat-mdc-form-field-label,
+    .form-group ::ng-deep .mdc-floating-label { color: white !important; }
+    .form-group ::ng-deep .mat-mdc-text-field-wrapper input { color: white !important; }
+    .form-group ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+    .form-group ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+    .form-group ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing { border-color: white !important; }
+    .form-group ::ng-deep .mdc-notched-outline__leading,
+    .form-group ::ng-deep .mdc-notched-outline__notch,
+    .form-group ::ng-deep .mdc-notched-outline__trailing { border-color: rgba(255,255,255,0.5) !important; }
     ul { margin: 0; padding-left: 18px; }
   `]
 })

@@ -52,6 +52,9 @@ import { QUESTIONNAIRE } from '../core/questionnaire';
       border-color: #451DC7;
     }
     .actions { margin-top: 16px; display: flex; justify-content: flex-end; }
+    ::ng-deep .mat-mdc-progress-bar-fill::after { background-color: #451DC7 !important; }
+    ::ng-deep .mdc-linear-progress__bar-inner { background-color: #451DC7 !important; }
+    ::ng-deep .mat-mdc-raised-button[color="primary"] { background-color: #451DC7 !important; }
   `]
 })
 export class QuestionComponent {
