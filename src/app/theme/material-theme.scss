@@ -1,0 +1,19 @@
+
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+// Paletten: M2-API mit Präfixen und Hue-Namen
+$primary-palette: mat.m2-define-palette(mat.$m2-indigo-palette, 500);
+$accent-palette:  mat.m2-define-palette(mat.$m2-green-palette, A200);
+$warn-palette:    mat.m2-define-palette(mat.$m2-red-palette);
+
+$theme: mat.m2-define-light-theme((
+  color: (
+    primary: $primary-palette,
+    accent:  $accent-palette,
+    warn:    $warn-palette
+  )
+));
+
+@include mat.all-component-themes($theme);

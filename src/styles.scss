@@ -1,1 +1,41 @@
-/* You can add global styles to this file, and also import other style files */
+
+@use './app/theme/material-theme' as *;
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  background: #F7F8FA;
+  color: #191A1C;
+}
+
+.container {
+  padding: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(25,26,28,0.06);
+  padding: 16px;
+}
+
+.header {
+  background: #451DC7;
+  color: #fff;
+}
+
+button.mat-mdc-raised-button {
+  min-height: 44px;
+  border-radius: 12px;
+}
+
+@media (min-width: 600px) {
+  .container { padding: 24px; }
+}
+
+@media (min-width: 960px) {
+  .container { padding: 32px; }
+}
