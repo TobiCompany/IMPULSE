@@ -6,6 +6,8 @@ import { QUESTIONNAIRE } from '../core/questionnaire';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { isPlatformBrowser } from '@angular/common';
+import { PLATFORM_ID } from '@angular/core';
 
 @Component({
   standalone: true,
@@ -40,13 +42,19 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 export class ResultComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
   // Anzeige-/Sende-Status
   sending = signal<boolean>(true);
   sent = signal<boolean>(false);
 
   constructor() {
-    // Beim Betreten der Seite: Antworten im Hintergrund übermitteln
-    this.sendResultsInBackground();
+    // Beim Betreten der Seite: Antworten im Hintergrund übermitteln (nur im Browser)
+    if (isPlatformBrowser(this.platformId)) {
+      this.sendResultsInBackground();
+    } else {
+      // Auf dem Server: Versand nicht durchführen
+      this.sending.set(false);
+    }
   }
 
   async sendResultsInBackground() {
@@ -73,19 +81,29 @@ export class ResultComponent {
   }
 }
 
-/* --- einfache LocalStorage-Persistenz --- */
+/* --- einfache LocalStorage-Persistenz (nur im Browser) --- */
 const KEY = 'fk_answers_v1';
 function loadAll(): Record<string, string> {
-  return JSON.parse(localStorage.getItem(KEY) ?? '{}');
+  if (typeof localStorage !== 'undefined') {
+    return JSON.parse(localStorage.getItem(KEY) ?? '{}');
+  }
+  return {};
 }
 function saveAll(data: Record<string, string>) {
-  localStorage.setItem(KEY, JSON.stringify(data));
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(KEY, JSON.stringify(data));
+  }
 }
 function saveAnswer(index: number, choiceId: string) {
-  const qid = QUESTIONNAIRE.questions[index].id;
-  const all = loadAll(); all[qid] = choiceId; saveAll(all);
+  if (typeof localStorage !== 'undefined') {
+    const qid = QUESTIONNAIRE.questions[index].id;
+    const all = loadAll(); all[qid] = choiceId; saveAll(all);
+  }
 }
 function loadAnswer(index: number): string | null {
-  const qid = QUESTIONNAIRE.questions[index].id;
-  const all = loadAll(); return all[qid] ?? null;
+  if (typeof localStorage !== 'undefined') {
+    const qid = QUESTIONNAIRE.questions[index].id;
+    const all = loadAll(); return all[qid] ?? null;
+  }
+  return null;
 }
