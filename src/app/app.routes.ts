@@ -1,13 +1,20 @@
-import { RenderMode, ServerRoute } from '@angular/ssr';
+import { Routes } from '@angular/router';
 
-export const serverRoutes: ServerRoute[] = [
-  {
-    // Prevent prerendering for the parameterized question route — render on client
-    path: 'frage/:index',
-    renderMode: RenderMode.Client
+export const routes: Routes = [
+  { 
+    path: '', 
+    loadComponent: () => import('./pages/start.component').then(m => m.StartComponent) 
   },
-  {
-    path: '**',
-    renderMode: RenderMode.Prerender
+  { 
+    path: 'frage/:index',
+    loadComponent: () => import('./pages/question.component').then(m => m.QuestionComponent)
+  },
+  { 
+    path: 'ergebnis', 
+    loadComponent: () => import('./pages/result.component').then(m => m.ResultComponent) 
+  },
+  { 
+    path: '**', 
+    redirectTo: '' 
   }
 ];
