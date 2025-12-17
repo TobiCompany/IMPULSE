@@ -8,6 +8,7 @@ export interface Question {
   type: AnswerType;
   required: boolean;
   choices: ChoiceOption[];
+  active?: boolean;
   category: 
     'ziele'                  // Hauptziele für Tool-Einführung
   | 'modell'

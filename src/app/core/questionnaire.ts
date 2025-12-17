@@ -6,6 +6,7 @@ export const QUESTIONNAIRE: Questionnaire = {
   title: 'Fragenkatalog: Testmanagement-Tool',
   questions: [
     {
+      active: false,
       id: 'q01',
       text: 'Was sind die Hauptziele für die Einführung eines Testmanagement-Tools?',
       type: 'multi',
@@ -20,6 +21,7 @@ export const QUESTIONNAIRE: Questionnaire = {
       ]
     },
     {
+      active: true,
       id: 'q02',
       text: 'Welche spezifischen Probleme möchten Sie adressieren?',
       type: 'multi',
@@ -34,6 +36,7 @@ export const QUESTIONNAIRE: Questionnaire = {
       ]
     },
     {
+      active: true,
       id: 'q03',
       text: 'Sind Sie mit dem aktuellen Stand Ihrer Softwarequalität zufrieden?',
       type: 'single',
@@ -48,6 +51,7 @@ export const QUESTIONNAIRE: Questionnaire = {
       ]
     },
     {
+      active: true,
       id: 'q04',
       text: 'In welchem Teil des Testprozesses identifizieren Sie die meisten Fehler?',
       type: 'single',
@@ -62,6 +66,7 @@ export const QUESTIONNAIRE: Questionnaire = {
       ]
     },
     {
+      active: true,
       id: 'q05',
       text: 'Woher stammen die meisten Fehler?',
       type: 'single',
@@ -76,6 +81,7 @@ export const QUESTIONNAIRE: Questionnaire = {
       ]
     },
     {
+      active: true,
       id: 'q06',
       text: 'Sind Sie mit Ihren aktuellen Entwicklungsprozessen zufrieden?',
       type: 'single',
@@ -90,6 +96,7 @@ export const QUESTIONNAIRE: Questionnaire = {
       ]
     },
     {
+      active: true,
       id: 'q07',
       text: 'Welche Geschäftsbereiche oder Prozesse sind am kritischsten?',
       type: 'multi',
@@ -104,6 +111,7 @@ export const QUESTIONNAIRE: Questionnaire = {
       ]
     },
     {
+      active: true,
       id: 'q08',
       text: 'Gibt es bestehende Testprozesse oder Standards, die harmonisiert werden sollten?',
       type: 'single',
@@ -118,6 +126,7 @@ export const QUESTIONNAIRE: Questionnaire = {
       ]
     },
     {
+      active: true,
       id: 'q09',
       text: 'Mit welchen Softwareentwicklungsmodellen arbeiten Sie?',
       type: 'single',
@@ -132,6 +141,7 @@ export const QUESTIONNAIRE: Questionnaire = {
       ]
     },
     {
+      active: true,
       id: 'q10',
       text: 'Welche Rollen und Verantwortlichkeiten gibt es im Testmanagement?',
       type: 'multi',
@@ -146,6 +156,7 @@ export const QUESTIONNAIRE: Questionnaire = {
       ]
     },
     {
+      active: true,
       id: 'q11',
       text: 'Wo werden die Geschäftsanforderungen derzeit gespeichert?',
       type: 'single',
@@ -161,6 +172,7 @@ export const QUESTIONNAIRE: Questionnaire = {
     },
     // 12
     {
+      active: true,
       id: 'q12',
       text: 'Wie gut sind die Geschäftsanforderungen durch Testfälle abgedeckt?',
       type: 'single',
@@ -176,6 +188,7 @@ export const QUESTIONNAIRE: Questionnaire = {
     },
     // 13
     {
+      active: true,
       id: 'q13',
       text: 'Gibt es verbindliche Verantwortlichkeiten für die Definition von Testfällen?',
       type: 'single',
@@ -191,6 +204,7 @@ export const QUESTIONNAIRE: Questionnaire = {
     },
     // 14
     {
+      active: true,
       id: 'q14',
       text: 'Welche Skalierbarkeits- und Performance-Anforderungen muss das Tool erfüllen?',
       type: 'multi',
@@ -206,6 +220,7 @@ export const QUESTIONNAIRE: Questionnaire = {
     },
     // 15
     {
+      active: true,
       id: 'q15',
       text: 'Welche regulatorischen oder Compliance-Anforderungen müssen berücksichtigt werden?',
       type: 'multi',
@@ -221,6 +236,7 @@ export const QUESTIONNAIRE: Questionnaire = {
     },
     // 16
     {
+      active: true,
       id: 'q16',
       text: 'Mit welchen anderen Tools oder Schnittstellen soll es verbunden werden?',
       type: 'multi',
@@ -236,6 +252,7 @@ export const QUESTIONNAIRE: Questionnaire = {
     },
     // 17
     {
+      active: true,
       id: 'q17',
       text: 'Gibt es besondere Zugriffsrechte, die berücksichtigt werden müssen?',
       type: 'multi',
@@ -251,6 +268,7 @@ export const QUESTIONNAIRE: Questionnaire = {
     },
     // 18
     {
+      active: true,
       id: 'q18',
       text: 'Wird das Tool in einer sicheren Umgebung mit eingeschränktem Online-Zugang eingesetzt?',
       type: 'single',
@@ -266,6 +284,7 @@ export const QUESTIONNAIRE: Questionnaire = {
     },
     // 19
     {
+      active: true,
       id: 'q19',
       text: 'Soll das Tool separat für jedes Team eingeführt werden oder zentral?',
       type: 'single',
@@ -281,6 +300,7 @@ export const QUESTIONNAIRE: Questionnaire = {
     },
     // 20
     {
+      active: true,
       id: 'q20',
       text: 'Wie stellen Sie sich die Reporting- und Analysefunktionen vor?',
       type: 'multi',
@@ -296,6 +316,7 @@ export const QUESTIONNAIRE: Questionnaire = {
     },
     // 21
     {
+      active: true,
       id: 'q21',
       text: 'Gibt es Kosten- oder Budgetbeschränkungen?',
       type: 'single',

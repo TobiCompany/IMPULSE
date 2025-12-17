@@ -14,7 +14,7 @@ import { QUESTIONNAIRE } from '../core/questionnaire';
   <div class="container">
     <div class="progress">
       <mat-progress-bar mode="determinate" [value]="progress()"></mat-progress-bar>
-      <small>Frage {{ index()+1 }} von {{ total }}</small>
+      <small>Frage {{ index()+1 }} von {{ total() }}</small>
     </div>
 
     <div class="card">
@@ -61,20 +61,28 @@ export class QuestionComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  total = QUESTIONNAIRE.questions.length;
   index = signal<number>(0);
   selected = signal<string[]>([]);
 
-  // Fragen, die nur Single-Choice (eine Antwort sinnvoll) erlauben (1-basiert)
+  // Sichtbare Fragen (nur active === true). Falls "active" fehlt, wird die Frage angezeigt.
+  visibleQuestions = computed(() => QUESTIONNAIRE.questions.filter(q => (q as any).active !== false));
+
+  // Anzahl sichtbarer Fragen
+  total = computed(() => this.visibleQuestions().length);
+
+  // Fragen, die nur Single-Choice erlauben (1-basiert)
   singleChoiceQuestions = new Set<number>([3,6,8,9,12,13,18,19,21]);
 
-  q = computed(() => QUESTIONNAIRE.questions[this.index()]);
+  q = computed(() => this.visibleQuestions()[this.index()]);
 
   constructor() {
     this.route.paramMap.subscribe(p => {
       const i = Number(p.get('index') ?? 0);
-      this.index.set(Math.max(0, Math.min(i, this.total - 1)));
-      this.selected.set(loadAnswers(this.index()));
+      const clamped = Math.max(0, Math.min(i, this.total()-1));
+      this.index.set(clamped);
+
+      const qObj = this.visibleQuestions()[this.index()];
+      this.selected.set(qObj ? loadAnswersById(qObj.id) : []);
     });
   }
 
@@ -85,16 +93,15 @@ export class QuestionComponent {
   toggle(choiceId: string) {
     const current = this.selected();
     const qNum = this.index() + 1; // 1-based Frage-Nummer
+    const qObj = this.visibleQuestions()[this.index()];
 
     if (this.singleChoiceQuestions.has(qNum)) {
-      // Single-Choice: Auswahl ersetzt vorherige Auswahl
       if (current.includes(choiceId)) {
         this.selected.set([]);
       } else {
         this.selected.set([choiceId]);
       }
     } else {
-      // Mehrfachauswahl: Verhalten wie bisher
       if (current.includes(choiceId)) {
         this.selected.set(current.filter(id => id !== choiceId));
       } else {
@@ -102,24 +109,16 @@ export class QuestionComponent {
       }
     }
 
-    saveAnswers(this.index(), this.selected());
+    if (qObj) saveAnswersById(qObj.id, this.selected());
   }
 
   next() {
-    const currentNum = this.index() + 1; // 1-based Frage-Nummer
     const nextIndex = this.index() + 1;
-
-    // Nach Frage 21: direkt zur Ergebnisseite
-    if (currentNum >= 21) {
-      this.router.navigate(['/ergebnis']);
-      return;
-    }
-
-    if (nextIndex < this.total) this.router.navigate(['/frage', nextIndex]);
+    if (nextIndex < this.total()) this.router.navigate(['/frage', nextIndex]);
     else this.router.navigate(['/ergebnis']);
   }
 
-  progress = computed(() => (this.index()+1) / this.total * 100);
+  progress = computed(() => (this.index()+1) / Math.max(1, this.total()) * 100);
 }
 
 /* --- einfache LocalStorage-Persistenz --- */
@@ -130,11 +129,9 @@ function loadAll(): Record<string, string[]> {
 function saveAll(data: Record<string, string[]>) {
   localStorage.setItem(KEY, JSON.stringify(data));
 }
-function saveAnswers(index: number, choiceIds: string[]) {
-  const qid = QUESTIONNAIRE.questions[index].id;
+function saveAnswersById(qid: string, choiceIds: string[]) {
   const all = loadAll(); all[qid] = choiceIds; saveAll(all);
 }
-function loadAnswers(index: number): string[] {
-  const qid = QUESTIONNAIRE.questions[index].id;
+function loadAnswersById(qid: string): string[] {
   const all = loadAll(); return all[qid] ?? [];
 }
