@@ -2,7 +2,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Router } from '@angular/router';
@@ -18,18 +18,25 @@ import { Router } from '@angular/router';
         <h1>Welcher Testprozess passt?</h1>
         <p class="subtitle">
           Beantworte 21 Fragen, um eine Empfehlung für den passenden Testprozess zu erhalten.
-        </p>        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Ihr Name</mat-label>
-            <input matInput [(ngModel)]="userName" placeholder="Max Mustermann">
-          </mat-form-field>
-        </div>
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Ihre E-Mail-Adresse</mat-label>
-            <input matInput type="email" [(ngModel)]="userEmail" placeholder="name@beispiel.de">
-          </mat-form-field>
-        </div>        <button mat-raised-button color="primary" (click)="start()">Los geht’s</button>
+        </p>
+        <form #startForm="ngForm" (ngSubmit)="start(startForm)">
+          <div class="form-group">
+            <mat-form-field appearance="outline">
+              <mat-label>Ihr Name</mat-label>
+              <input matInput name="name" [(ngModel)]="userName" placeholder="Max Mustermann">
+            </mat-form-field>
+          </div>
+          <div class="form-group">
+            <mat-form-field appearance="outline">
+              <mat-label>Ihre E-Mail-Adresse</mat-label>
+              <input matInput type="email" name="email" [(ngModel)]="userEmail" placeholder="name@beispiel.de" #emailModel="ngModel" required email>
+              <mat-error *ngIf="emailModel.invalid && (emailModel.dirty || emailModel.touched || startForm.submitted)">
+                {{ emailModel.errors?.['required'] ? 'E-Mail ist erforderlich' : 'Ungültige E-Mail-Adresse' }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <button mat-raised-button color="primary" type="submit" [disabled]="startForm.invalid">Los geht’s</button>
+        </form>
       </div>
     </header>
     <main class="container">
@@ -74,7 +81,10 @@ export class StartComponent {
 
   constructor(private router: Router) {}
 
-  start(): void {
+  start(form?: NgForm): void {
+    if (form && form.invalid) {
+      return;
+    }
     // Speichere Nutzerdaten vor Weiterleitung
     const userData = {
       name: this.userName.trim(),

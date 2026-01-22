@@ -32,7 +32,8 @@ export interface Question {
   | 'betriebsumgebung'       // Online-/Offline-Nutzung
   | 'einführungsstrategie'   // Zentral vs. Teamweise Einführung
   | 'reporting'              // Reporting & Analysefunktionen
-  | 'budget';                // Budgetrestriktionen
+  | 'budget'                 // Budgetrestriktionen
+  | 'zustimmung';            // Zustimmungsfragen
 
 }
 

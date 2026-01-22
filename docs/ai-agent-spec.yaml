@@ -1,0 +1,104 @@
+name: Testprozess Berater
+version: 1.0
+description: |
+  Agent zur Auswertung des Fragenkatalogs und Empfehlung eines passenden Testprozesses.
+  Akzeptiert strukturierte Antworten und liefert eine Empfehlung, Scoring pro Bereich
+  und eine kurze Begründung.
+input_schema:
+  type: object
+  properties:
+    user:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        startedAt:
+          type: string
+          format: date-time
+    answers:
+      type: array
+      items:
+        type: object
+        properties:
+          questionId:
+            type: integer
+          answer:
+            type: string
+          score:
+            type: number
+      description: "Array mit 21 Antworten. score optional, falls clientseitig berechnet."
+output_schema:
+  type: object
+  properties:
+    recommendation:
+      type: string
+      description: "Kurztext: empfohlener Testprozess (z.B. 'Explorativ + Automatisierung')."
+    scores:
+      type: object
+      additionalProperties:
+        type: number
+      description: "Numerische Scores pro Bewertungskategorie (z.B. Automatisierung, Manual, Risiko)."
+    rationale:
+      type: string
+      description: "Kurze Begründung der Empfehlung (3-6 Sätze).")
+    topFactors:
+      type: array
+      items:
+        type: string
+      description: "Kernfaktoren, die zur Empfehlung geführt haben."
+constraints:
+  privacy:
+    - "Keine Speicherung sensibler personenbezogener Daten im Prompt oder Logs."
+    - "E-Mail darf nur zur Kontaktaufnahme verwendet werden; ggf. pseudonymisieren."
+  behavior:
+    - "Antwortformat muss JSON-konform sein nach output_schema."
+    - "Max tokens: 800 (bei Nutzung externer Provider)."
+    - "Determinism: temperature <= 0.3 für reproduzierbare Empfehlungen."
+prompt_template:
+  system: |
+    Du bist der 'Testprozess Berater', ein sachlicher Assistent, der anhand eines
+    strukturierten Satzes von Antworten (21 Fragen) eine Empfehlung für einen
+    geeigneten Testprozess erstellt. Antworte ausschließlich als gültiges JSON
+    gemäß dem output_schema. Konzentriere dich auf handlungsfähige, kurze
+    Empfehlungen und nenne die wichtigsten Einflussfaktoren.
+  user_example: |
+    INPUT:
+    { "user": {"name":"Max","email":"m@e.de","startedAt":"2026-01-08T12:00:00Z"},
+      "answers":[{"questionId":0,"answer":"Ja","score":2}, ... ] }
+    OUTPUT (BEISPIEL):
+    {
+      "recommendation": "Automatisierung + Regressionstest-Framework",
+      "scores": {"automation": 8, "manual": 4, "risk": 6},
+      "rationale": "Hoher Bedarf an wiederholbaren Tests und stabile Komponenten.",
+      "topFactors": ["Viele repetitive Abläufe","Stabile Architektur"]
+    }
+api_contract:
+  path: /api/evaluate
+  method: POST
+  request: "application/json (conforms to input_schema)"
+  response: "application/json (conforms to output_schema)"
+implementation_notes:
+  - "Empfohlen: Server-side evaluation (backend) um API-Keys sicher zu halten."
+  - "Schritt 1: Prompt-Builder und Input-Validator (JSON Schema) in Backend.
+    Schritt 2: Call AI-Provider, parse JSON, validate gegen output_schema.
+    Schritt 3: Speichern/Weiterleiten Ergebnis; keine sensiblen Logs."
+provider_options:
+  - name: OpenAI
+    pros: ["Mature API","Good JSON tools","Rate limiting & retry best practices"]
+    cons: ["Kosten", "External data transfer"]
+  - name: Local LLM (e.g., Mistral/LLama)
+    pros: ["Kein external data transfer"]
+    cons: ["Resource intensive","Ops complexity"]
+next_steps:
+  - "Wähle Integrationsmodus: server-side (empfohlen) oder client-side."
+  - "Entscheide Provider und setze Umgebungsvariable für API-Keys."
+  - "Ich kann nun ein Backend-Endpunkt-Template und ein Prompt-Builder-Modul implementieren."
+sample_request: |
+  POST /api/evaluate
+  Content-Type: application/json
+
+  { "user": { "name":"Anna","email":"a@b.de","startedAt":"..."}, "answers": [...] }
+sample_response: |
+  { "recommendation":"Explorativ + Automatisierung","scores":{"automation":7}, "rationale":"...","topFactors":["..."] }

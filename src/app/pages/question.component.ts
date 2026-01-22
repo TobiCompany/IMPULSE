@@ -32,14 +32,18 @@ import { QUESTIONNAIRE } from '../core/questionnaire';
       </div>
 
       <div class="actions">
-        <button mat-raised-button color="primary" (click)="next()" [disabled]="selected().length === 0">Weiter</button>
+        <button mat-raised-button color="primary" (click)="next()" [disabled]="!selected()">Weiter</button>
       </div>
     </div>
   </div>
   `,
   styles: [`
     .progress { margin: 8px 0 12px; }
-    .options { display: grid; gap: 12px; }
+    .options { 
+      display: grid; 
+      gap: 12px; 
+      min-height: 200px; 
+    }
     .option { 
       justify-content: flex-start; 
       padding: 12px 16px; 
@@ -62,16 +66,13 @@ export class QuestionComponent {
   private router = inject(Router);
 
   index = signal<number>(0);
-  selected = signal<string[]>([]);
+  selected = signal<string>('');
 
   // Sichtbare Fragen (nur active === true). Falls "active" fehlt, wird die Frage angezeigt.
   visibleQuestions = computed(() => QUESTIONNAIRE.questions.filter(q => (q as any).active !== false));
 
   // Anzahl sichtbarer Fragen
   total = computed(() => this.visibleQuestions().length);
-
-  // Fragen, die nur Single-Choice erlauben (1-basiert)
-  singleChoiceQuestions = new Set<number>([3,6,8,9,12,13,18,19,21]);
 
   q = computed(() => this.visibleQuestions()[this.index()]);
 
@@ -82,34 +83,30 @@ export class QuestionComponent {
       this.index.set(clamped);
 
       const qObj = this.visibleQuestions()[this.index()];
-      this.selected.set(qObj ? loadAnswersById(qObj.id) : []);
+      this.selected.set(qObj ? loadAnswerById(qObj.id) : '');
     });
   }
 
   isSelected(choiceId: string): boolean {
-    return this.selected().includes(choiceId);
+    return this.selected() === choiceId;
   }
 
   toggle(choiceId: string) {
     const current = this.selected();
-    const qNum = this.index() + 1; // 1-based Frage-Nummer
     const qObj = this.visibleQuestions()[this.index()];
 
-    if (this.singleChoiceQuestions.has(qNum)) {
-      if (current.includes(choiceId)) {
-        this.selected.set([]);
+    if (qObj.type === 'single') {
+      if (current === choiceId) {
+        this.selected.set('');
       } else {
-        this.selected.set([choiceId]);
+        this.selected.set(choiceId);
       }
     } else {
-      if (current.includes(choiceId)) {
-        this.selected.set(current.filter(id => id !== choiceId));
-      } else {
-        this.selected.set([...current, choiceId]);
-      }
+      // Für multi, aber da alle single sind, nicht relevant
+      // Aber lassen wir es für zukünftige Erweiterungen
     }
 
-    if (qObj) saveAnswersById(qObj.id, this.selected());
+    if (qObj) saveAnswerById(qObj.id, this.selected());
   }
 
   next() {
@@ -123,15 +120,15 @@ export class QuestionComponent {
 
 /* --- einfache LocalStorage-Persistenz --- */
 const KEY = 'fk_answers_v1';
-function loadAll(): Record<string, string[]> {
+function loadAll(): Record<string, string> {
   return JSON.parse(localStorage.getItem(KEY) ?? '{}');
 }
-function saveAll(data: Record<string, string[]>) {
+function saveAll(data: Record<string, string>) {
   localStorage.setItem(KEY, JSON.stringify(data));
 }
-function saveAnswersById(qid: string, choiceIds: string[]) {
-  const all = loadAll(); all[qid] = choiceIds; saveAll(all);
+function saveAnswerById(qid: string, choiceId: string) {
+  const all = loadAll(); all[qid] = choiceId; saveAll(all);
 }
-function loadAnswersById(qid: string): string[] {
-  const all = loadAll(); return all[qid] ?? [];
+function loadAnswerById(qid: string): string {
+  const all = loadAll(); return all[qid] ?? '';
 }

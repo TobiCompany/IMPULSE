@@ -6,11 +6,72 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import dotenv from 'dotenv';
+import { sendEvaluationEmail, sendTestEmail, type EmailPayload } from './server/email.service';
+
+dotenv.config();
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+
+// Middleware
+app.use(express.json());
+
+/**
+ * API endpoint to send evaluation email
+ */
+app.post('/api/send-email', async (req, res) => {
+  try {
+    const payload: EmailPayload = req.body;
+
+    // Basic validation
+    if (
+      !payload.userName ||
+      !payload.userEmail ||
+      !payload.recommendation ||
+      !payload.scores ||
+      !payload.rationale ||
+      !payload.topFactors
+    ) {
+      return res
+        .status(400)
+        .json({ error: 'Missing required fields in payload' });
+    }
+
+    await sendEvaluationEmail(payload);
+    res.json({
+      success: true,
+      message: 'Email sent successfully',
+    });
+  } catch (error) {
+    console.error('Email endpoint error:', error);
+    res.status(500).json({
+      error: 'Failed to send email',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+/**
+ * API endpoint to send test email
+ */
+app.post('/api/send-test-email', async (req, res) => {
+  try {
+    await sendTestEmail();
+    res.json({
+      success: true,
+      message: 'Test email sent successfully',
+    });
+  } catch (error) {
+    console.error('Test email endpoint error:', error);
+    res.status(500).json({
+      error: 'Failed to send test email',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
 
 /**
  * Example Express Rest API endpoints can be defined here.

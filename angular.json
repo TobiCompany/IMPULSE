@@ -36,7 +36,9 @@
             "outputMode": "server",
             "ssr": {
               "entry": "src/server.ts"
-            }
+            },
+            "prerender": false,
+            "externalDependencies": ["nodemailer"]
           },
           "configurations": {
             "production": {

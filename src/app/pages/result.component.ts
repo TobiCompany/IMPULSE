@@ -2,6 +2,7 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { QUESTIONNAIRE } from '../core/questionnaire';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -42,6 +43,7 @@ import { PLATFORM_ID } from '@angular/core';
 export class ResultComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
   // Anzeige-/Sende-Status
   sending = signal<boolean>(true);
@@ -60,16 +62,16 @@ export class ResultComponent {
   async sendResultsInBackground() {
     const answers = loadAll();
     try {
-      // Simuliere asynchronen Versand — ersetze hier mit echtem API-Aufruf falls vorhanden
-      console.log('Sende Ergebnisse an Sachbearbeiter...', answers);
-      await new Promise(r => setTimeout(r, 1200));
+      // Sende Test-E-Mail an die vordefinierten Empfänger
+      console.log('Sende Test-E-Mail...', answers);
+      await this.http.post('/api/send-test-email', {}).toPromise();
 
       // Markiere als gesendet (lokal) — optional: lösche gespeicherte Antworten
       localStorage.setItem('fk_results_sent_at', new Date().toISOString());
       localStorage.setItem('fk_results_payload', JSON.stringify(answers));
       this.sent.set(true);
     } catch (err) {
-      console.error('Fehler beim Senden der Ergebnisse', err);
+      console.error('Fehler beim Senden der Test-E-Mail', err);
       this.sent.set(false);
     } finally {
       this.sending.set(false);
