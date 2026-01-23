@@ -13,10 +13,10 @@ export const QUESTIONNAIRE: Questionnaire = {
       required: true,
       category: 'zustimmung',
       choices: [
-        { id: 'gar-nicht', label: 'stimmt gar nicht zu' },
-        { id: 'weniger', label: 'stimmt weniger zu' },
-        { id: 'mehr', label: 'stimmt mehr zu' },
-        { id: 'voll', label: 'stimmt voll zu' }
+        { id: 'gar-nicht', label: 'stimme gar nicht zu' },
+        { id: 'weniger', label: 'stimme weniger zu' },
+        { id: 'mehr', label: 'stimme mehr zu' },
+        { id: 'voll', label: 'stimme voll zu' }
       ]
     },
     {
@@ -27,10 +27,10 @@ export const QUESTIONNAIRE: Questionnaire = {
       required: true,
       category: 'zustimmung',
       choices: [
-        { id: 'gar-nicht', label: 'stimmt gar nicht zu' },
-        { id: 'weniger', label: 'stimmt weniger zu' },
-        { id: 'mehr', label: 'stimmt mehr zu' },
-        { id: 'voll', label: 'stimmt voll zu' }
+        { id: 'gar-nicht', label: 'stimme gar nicht zu' },
+        { id: 'weniger', label: 'stimme weniger zu' },
+        { id: 'mehr', label: 'stimme mehr zu' },
+        { id: 'voll', label: 'stimme voll zu' }
       ]
     },
     {
@@ -41,10 +41,10 @@ export const QUESTIONNAIRE: Questionnaire = {
       required: true,
       category: 'zustimmung',
       choices: [
-        { id: 'gar-nicht', label: 'stimmt gar nicht zu' },
-        { id: 'weniger', label: 'stimmt weniger zu' },
-        { id: 'mehr', label: 'stimmt mehr zu' },
-        { id: 'voll', label: 'stimmt voll zu' }
+        { id: 'gar-nicht', label: 'stimme gar nicht zu' },
+        { id: 'weniger', label: 'stimme weniger zu' },
+        { id: 'mehr', label: 'stimme mehr zu' },
+        { id: 'voll', label: 'stimme voll zu' }
       ]
     },
     {
@@ -55,10 +55,10 @@ export const QUESTIONNAIRE: Questionnaire = {
       required: true,
       category: 'zustimmung',
       choices: [
-        { id: 'gar-nicht', label: 'stimmt gar nicht zu' },
-        { id: 'weniger', label: 'stimmt weniger zu' },
-        { id: 'mehr', label: 'stimmt mehr zu' },
-        { id: 'voll', label: 'stimmt voll zu' }
+        { id: 'gar-nicht', label: 'stimme gar nicht zu' },
+        { id: 'weniger', label: 'stimme weniger zu' },
+        { id: 'mehr', label: 'stimme mehr zu' },
+        { id: 'voll', label: 'stimme voll zu' }
       ]
     },
     {
@@ -69,10 +69,10 @@ export const QUESTIONNAIRE: Questionnaire = {
       required: true,
       category: 'zustimmung',
       choices: [
-        { id: 'gar-nicht', label: 'stimmt gar nicht zu' },
-        { id: 'weniger', label: 'stimmt weniger zu' },
-        { id: 'mehr', label: 'stimmt mehr zu' },
-        { id: 'voll', label: 'stimmt voll zu' }
+        { id: 'gar-nicht', label: 'stimme gar nicht zu' },
+        { id: 'weniger', label: 'stimme weniger zu' },
+        { id: 'mehr', label: 'stimme mehr zu' },
+        { id: 'voll', label: 'stimme voll zu' }
       ]
     },
     {
@@ -83,10 +83,10 @@ export const QUESTIONNAIRE: Questionnaire = {
       required: true,
       category: 'zustimmung',
       choices: [
-        { id: 'gar-nicht', label: 'stimmt gar nicht zu' },
-        { id: 'weniger', label: 'stimmt weniger zu' },
-        { id: 'mehr', label: 'stimmt mehr zu' },
-        { id: 'voll', label: 'stimmt voll zu' }
+        { id: 'gar-nicht', label: 'stimme gar nicht zu' },
+        { id: 'weniger', label: 'stimme weniger zu' },
+        { id: 'mehr', label: 'stimme mehr zu' },
+        { id: 'voll', label: 'stimme voll zu' }
       ]
     },
     {
@@ -97,10 +97,10 @@ export const QUESTIONNAIRE: Questionnaire = {
       required: true,
       category: 'zustimmung',
       choices: [
-        { id: 'gar-nicht', label: 'stimmt gar nicht zu' },
-        { id: 'weniger', label: 'stimmt weniger zu' },
-        { id: 'mehr', label: 'stimmt mehr zu' },
-        { id: 'voll', label: 'stimmt voll zu' }
+        { id: 'gar-nicht', label: 'stimme gar nicht zu' },
+        { id: 'weniger', label: 'stimme weniger zu' },
+        { id: 'mehr', label: 'stimme mehr zu' },
+        { id: 'voll', label: 'stimme voll zu' }
       ]
     },
     {
@@ -111,10 +111,10 @@ export const QUESTIONNAIRE: Questionnaire = {
       required: true,
       category: 'zustimmung',
       choices: [
-        { id: 'gar-nicht', label: 'stimmt gar nicht zu' },
-        { id: 'weniger', label: 'stimmt weniger zu' },
-        { id: 'mehr', label: 'stimmt mehr zu' },
-        { id: 'voll', label: 'stimmt voll zu' }
+        { id: 'gar-nicht', label: 'stimme gar nicht zu' },
+        { id: 'weniger', label: 'stimme weniger zu' },
+        { id: 'mehr', label: 'stimme mehr zu' },
+        { id: 'voll', label: 'stimme voll zu' }
       ]
     },
     {
@@ -125,10 +125,10 @@ export const QUESTIONNAIRE: Questionnaire = {
       required: true,
       category: 'zustimmung',
       choices: [
-        { id: 'gar-nicht', label: 'stimmt gar nicht zu' },
-        { id: 'weniger', label: 'stimmt weniger zu' },
-        { id: 'mehr', label: 'stimmt mehr zu' },
-        { id: 'voll', label: 'stimmt voll zu' }
+        { id: 'gar-nicht', label: 'stimme gar nicht zu' },
+        { id: 'weniger', label: 'stimme weniger zu' },
+        { id: 'mehr', label: 'stimme mehr zu' },
+        { id: 'voll', label: 'stimme voll zu' }
       ]
     },
     {
@@ -139,10 +139,10 @@ export const QUESTIONNAIRE: Questionnaire = {
       required: true,
       category: 'zustimmung',
       choices: [
-        { id: 'gar-nicht', label: 'stimmt gar nicht zu' },
-        { id: 'weniger', label: 'stimmt weniger zu' },
-        { id: 'mehr', label: 'stimmt mehr zu' },
-        { id: 'voll', label: 'stimmt voll zu' }
+        { id: 'gar-nicht', label: 'stimme gar nicht zu' },
+        { id: 'weniger', label: 'stimme weniger zu' },
+        { id: 'mehr', label: 'stimme mehr zu' },
+        { id: 'voll', label: 'stimme voll zu' }
       ]
     },
     {
@@ -153,10 +153,10 @@ export const QUESTIONNAIRE: Questionnaire = {
       required: true,
       category: 'zustimmung',
       choices: [
-        { id: 'gar-nicht', label: 'stimmt gar nicht zu' },
-        { id: 'weniger', label: 'stimmt weniger zu' },
-        { id: 'mehr', label: 'stimmt mehr zu' },
-        { id: 'voll', label: 'stimmt voll zu' }
+        { id: 'gar-nicht', label: 'stimme gar nicht zu' },
+        { id: 'weniger', label: 'stimme weniger zu' },
+        { id: 'mehr', label: 'stimme mehr zu' },
+        { id: 'voll', label: 'stimme voll zu' }
       ]
     }
   ]
