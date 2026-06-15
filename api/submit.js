@@ -1,63 +1,36 @@
 // Vercel Serverless Function – IMPULSE → WARP Postkorb
+// Uses native fetch (Node.js 18+); debug mode active until webhook is confirmed working.
 
-const https = require('https');
-const http = require('http');
-const { URL } = require('url');
+async function sendWarpWebhook(payload) {
+  const warpUrl = process.env.WARP_WEBHOOK_URL;
+  const apiKey = process.env.WARP_API_KEY;
 
-const TIMEOUT_MS = 8000;
+  if (!warpUrl) {
+    throw new Error('WARP_WEBHOOK_URL not set');
+  }
 
-function sendWarpWebhook(payload) {
-  return new Promise((resolve, reject) => {
-    const warpUrl = process.env.WARP_WEBHOOK_URL;
-    const apiKey = process.env.WARP_API_KEY;
+  const headers = { 'Content-Type': 'application/json' };
+  if (apiKey) headers['X-API-Key'] = apiKey;
 
-    if (!warpUrl) {
-      return reject(new Error('WARP_WEBHOOK_URL not set in environment'));
-    }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
 
-    let parsed;
-    try {
-      parsed = new URL(warpUrl);
-    } catch (e) {
-      return reject(new Error('Invalid WARP_WEBHOOK_URL: ' + e.message));
-    }
-
-    const body = JSON.stringify(payload);
-    const isHttps = parsed.protocol === 'https:';
-    const transport = isHttps ? https : http;
-
-    const options = {
-      hostname: parsed.hostname,
-      port: parsed.port ? Number(parsed.port) : (isHttps ? 443 : 80),
-      path: parsed.pathname + (parsed.search || ''),
+  try {
+    const res = await fetch(warpUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(body),
-        ...(apiKey ? { 'X-API-Key': apiKey } : {}),
-      },
-    };
-
-    const req = transport.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          resolve({ status: res.statusCode, body: data });
-        } else {
-          reject(new Error(`WARP returned ${res.statusCode}: ${data}`));
-        }
-      });
+      headers,
+      body: JSON.stringify(payload),
+      signal: controller.signal,
     });
 
-    req.setTimeout(TIMEOUT_MS, () => {
-      req.destroy(new Error(`Timeout after ${TIMEOUT_MS}ms`));
-    });
-
-    req.on('error', reject);
-    req.write(body);
-    req.end();
-  });
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(`WARP returned ${res.status}: ${text}`);
+    }
+    return { status: res.status, body: text };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 module.exports = async function handler(req, res) {
@@ -74,13 +47,8 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required fields', received: payload });
   }
 
-  const rawUrl = process.env.WARP_WEBHOOK_URL || '';
-  let parsedDebug = null;
-  try { const u = new URL(rawUrl); parsedDebug = { host: u.hostname, path: u.pathname, search: u.search }; } catch {}
   const debug = {
-    hasWarpUrl: !!rawUrl,
-    warpUrl: rawUrl,   // show full URL for debugging
-    warpParsed: parsedDebug,
+    warpUrl: process.env.WARP_WEBHOOK_URL || '(not set)',
     hasApiKey: !!process.env.WARP_API_KEY,
     webhookResult: null,
     webhookError: null,
