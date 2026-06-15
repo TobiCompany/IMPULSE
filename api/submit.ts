@@ -1,48 +1,41 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
-import { sendEvaluationEmail, type EmailPayload } from '../src/server/email.service';
+// Vercel Serverless Function – empfängt IMPULSE-Auswertung,
+// sendet an WARP-Webhook (und optional per E-Mail).
 
-async function sendWarpWebhook(payload: EmailPayload): Promise<void> {
+export const config = { api: { bodyParser: true } };
+
+async function sendWarpWebhook(payload: Record<string, unknown>): Promise<void> {
   const url = process.env['WARP_WEBHOOK_URL'];
   const key = process.env['WARP_API_KEY'];
   if (!url) {
-    console.warn('[IMPULSE] WARP_WEBHOOK_URL nicht gesetzt – Webhook übersprungen');
+    console.warn('[IMPULSE] WARP_WEBHOOK_URL nicht gesetzt');
     return;
   }
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (key) headers['X-API-Key'] = key;
-  const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload) });
-  if (!res.ok) throw new Error(`WARP webhook returned ${res.status}: ${await res.text()}`);
-  console.log('[IMPULSE] WARP-Webhook erfolgreich:', res.status);
+  const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload) });
+  if (!r.ok) throw new Error(`WARP webhook ${r.status}: ${await r.text()}`);
+  console.log('[IMPULSE] WARP-Webhook OK:', r.status);
 }
 
-export default async function handler(req: IncomingMessage & { body?: any }, res: ServerResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
-    res.writeHead(405, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Method not allowed' }));
-    return;
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const payload: EmailPayload = req.body;
+  try {
+    const payload = req.body;
 
-  if (!payload?.userName || !payload?.userEmail || !payload?.recommendation) {
-    res.writeHead(400, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Missing required fields' }));
-    return;
-  }
-
-  console.log(`[IMPULSE] Neue Auswertung für ${payload.userName} (${payload.userEmail}): ${payload.recommendation}`);
-
-  const results = await Promise.allSettled([
-    sendEvaluationEmail(payload),
-    sendWarpWebhook(payload),
-  ]);
-
-  results.forEach((r, i) => {
-    if (r.status === 'rejected') {
-      console.error(`[IMPULSE] ${i === 0 ? 'E-Mail' : 'WARP-Webhook'} fehlgeschlagen:`, r.reason);
+    if (!payload?.userName || !payload?.userEmail || !payload?.recommendation) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
-  });
 
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ success: true }));
+    console.log(`[IMPULSE] ${payload.userName} (${payload.userEmail}): ${payload.recommendation}`);
+
+    await sendWarpWebhook(payload);
+
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('[IMPULSE] api/submit Fehler:', err);
+    res.status(500).json({ error: String(err) });
+  }
 }
