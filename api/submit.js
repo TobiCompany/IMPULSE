@@ -2,7 +2,8 @@
 // Uses native fetch (Node.js 18+); debug mode active until webhook is confirmed working.
 
 async function sendWarpWebhook(payload) {
-  const warpUrl = process.env.WARP_WEBHOOK_URL;
+  // Take only the first word in case the env var has extra text (e.g. "https://... WARP_API_KEY")
+  const warpUrl = (process.env.WARP_WEBHOOK_URL || '').trim().split(/\s+/)[0];
   const apiKey = process.env.WARP_API_KEY;
 
   if (!warpUrl) {
