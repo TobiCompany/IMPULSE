@@ -5,79 +5,99 @@ interface EvalCtx {
   answers: Record<string, string | string[]>;
 }
 
+// Likert score: gar-nicht=1, weniger=2, mehr=3, voll=4; 0 if unanswered
+function s(answer: string | string[] | undefined): number {
+  if (!answer) return 0;
+  const a = Array.isArray(answer) ? answer[0] : answer;
+  if (a === 'voll')     return 4;
+  if (a === 'mehr')     return 3;
+  if (a === 'weniger')  return 2;
+  if (a === 'gar-nicht') return 1;
+  return 0;
+}
+
+// Inverted score for negatively-worded questions (q08: "wir testen alles manuell")
+function inv(answer: string | string[] | undefined): number {
+  const sc = s(answer);
+  return sc === 0 ? 0 : 5 - sc;
+}
+
 /**
- * Heuristik:
- * - Compliance hoch -> +V-Model, +Risk-Based
- * - Agiles Umfeld -> +Agile, +Continuous
- * - Hohe Unsicherheit -> +Exploratory, +Risk-Based
- * - Hoher Automatisierungsgrad/CI -> +Continuous
- * - Großes Team, klare Anforderungen -> +V-Model
+ * Questionnaire dimensions (all Likert scale, higher = better except q08):
+ *   q01 – Klarer Überblick über Teststand            (Transparenz)
+ *   q02 – Frühzeitige Erkennung von Steuerungsbedarf (Früherkennung)
+ *   q03 – Produkt erfüllt Erwartungen                (Produktqualität)
+ *   q04 – Keine/kaum Fehler in Produktion            (Produktionsqualität)
+ *   q05 – Klare Aufgabenverantwortung im Test        (Rollen)
+ *   q06 – Klare Rollen im Projekt                    (Rollen)
+ *   q07 – Dokumentierter, einsehbarer Testprozess    (Dokumentation)
+ *   q08 – Alles manuell getestet (n)                 (INVERTIERT – manuell = schlecht)
+ *   q09 – Systematische Testfall-Unterstützung        (Systematik)
+ *   q10 – Positiver Arbeitsaufwand                   (Teambefinden)
+ *   q11 – Motivation & Engagement                    (Teambefinden)
  */
 export function computeRecommendation(ctx: EvalCtx): Result {
+  const a = ctx.answers;
+
+  // --- Recommendation scores ---
+  // Each driven by 3 most relevant dimensions (max 12 points each)
   const score: Record<Recommendation, number> = {
-    'V-Model': 0,
-    'Agile Testing': 0,
-    'Risk-Based Testing': 0,
-    'Exploratory Testing': 0,
-    'Continuous Testing': 0
+    'V-Model':
+      s(a['q07']) + s(a['q01']) + s(a['q06']),           // Dokumentation + Transparenz + Rollen
+
+    'Agile Testing':
+      s(a['q02']) + s(a['q05']) + s(a['q11']),            // Früherkennung + Ownership + Motivation
+
+    'Risk-Based Testing':
+      inv(a['q04']) + inv(a['q03']) + inv(a['q02']),       // Qualitätsprobleme → Risikofokus
+
+    'Exploratory Testing':
+      s(a['q08']) + inv(a['q09']) + inv(a['q07']),         // Viel manuell + keine Tools + kein Prozess
+
+    'Continuous Testing':
+      s(a['q09']) + inv(a['q08']) + s(a['q01']),           // Tools + Automatisierung + Transparenz
   };
 
-  const prozess = ctx.answers['q01'];
-  if (prozess === 'classic') score['V-Model'] += 3;
-  if (prozess === 'agile')   score['Agile Testing'] += 3, score['Continuous Testing'] += 2;
-  if (prozess === 'hybrid')  score['Agile Testing'] += 1, score['V-Model'] += 1;
+  const top = (Object.entries(score)
+    .sort((x, y) => y[1] - x[1])[0] ?? ['Exploratory Testing'])[0] as Recommendation;
 
-  const compliance = ctx.answers['q02'];
-  if (compliance === 'high') score['V-Model'] += 3, score['Risk-Based Testing'] += 2;
-  if (compliance === 'mid')  score['Risk-Based Testing'] += 1;
-
-  const req = ctx.answers['q03'];
-  if (req === 'uncertain') score['Exploratory Testing'] += 3, score['Risk-Based Testing'] += 2;
-  if (req === 'partial')   score['Exploratory Testing'] += 1;
-
-  // Beispiel für weitere Signale:
-  const team = ctx.answers['q08']; // z.B. "1-2", "3-5", "6-10", "10+"
-  if (team === '10+') score['V-Model'] += 2;
-  if (team === '1-2') score['Exploratory Testing'] += 1;
-
-  const ci = ctx.answers['q12']; // "ci-on", "ci-off"
-  if (ci === 'ci-on') score['Continuous Testing'] += 3;
-
-  // ... ergänze weitere Regeln analog (Risiko, Testdatenverfügbarkeit, Automatisierung usw.)
-
-  const top = (Object.entries(score).sort((a,b) => b[1] - a[1])[0] ?? ['Exploratory Testing'])[0] as Recommendation;
-
+  // --- Rationale ---
   const rationale = (() => {
     switch (top) {
       case 'V-Model':
-        return 'Strukturiertes, phasenorientiertes Vorgehen mit starker Dokumentation – geeignet bei hoher Regulierung, klaren Anforderungen und größeren Teams.';
+        return 'Ihr Testprozess weist klare Strukturen auf. Ein V-Modell-Ansatz mit dokumentierten Phasen und definierten Rollen würde Ihre vorhandenen Stärken optimal nutzen und absichern.';
       case 'Agile Testing':
-        return 'Inkrementelles Testen in Sprints, frühes Feedback, enge Zusammenarbeit – ideal für agile Projekte mit dynamischen Anforderungen.';
+        return 'Ihr Team ist gut aufgestellt und erkennt Probleme früh. Agile Testing-Praktiken helfen, Qualitätssicherung kontinuierlich und eng verzahnt mit der Entwicklung zu betreiben.';
       case 'Risk-Based Testing':
-        return 'Fokus auf risikoreiche Bereiche, priorisierte Testfälle – sinnvoll bei knappen Ressourcen und hoher Kritikalität.';
+        return 'Es bestehen Qualitätslücken oder Fehler in Produktion. Risikobasiertes Testen ermöglicht es, Ressourcen gezielt auf die kritischsten Bereiche zu konzentrieren und schnell Wirkung zu erzielen.';
       case 'Exploratory Testing':
-        return 'Lern- & hypothesengetriebenes Vorgehen, wertvoll bei hoher Unsicherheit und frühem Produktreifegrad.';
+        return 'Der Testprozess ist noch wenig formalisiert. Exploratives Testen ermöglicht schnelle Erkenntnisse ohne aufwändige Vorbereitung und ist ein guter erster Schritt zu mehr Testqualität.';
       case 'Continuous Testing':
-        return 'Durchgängiges Testen im CI/CD, Automatisierung, schnelle Feedback-Loops – optimal für DevOps-Umgebungen.';
+        return 'Vorhandene Testwerkzeuge und Automatisierungsansätze bieten eine gute Basis. Continuous Testing integriert Qualitätssicherung nahtlos in Ihre Entwicklungspipeline.';
     }
   })();
 
-  const topFactors: string[] = [];
-  if (prozess === 'agile')        topFactors.push('Agiles Entwicklungsumfeld');
-  else if (prozess === 'classic') topFactors.push('Klassischer Entwicklungsprozess');
-  else if (prozess === 'hybrid')  topFactors.push('Hybrides Vorgehen');
-  if (compliance === 'high')      topFactors.push('Hohe Compliance-Anforderungen');
-  if (req === 'uncertain')        topFactors.push('Hohe Anforderungsunsicherheit');
-  else if (req === 'partial')     topFactors.push('Teilweise unklare Anforderungen');
-  if (ci === 'ci-on')             topFactors.push('CI/CD-Pipeline aktiv');
-  if (team === '10+')             topFactors.push('Großes Team (10+ Personen)');
-  else if (team === '1-2')        topFactors.push('Kleines Team (1–2 Personen)');
+  // --- Maturity score (0–44; q08 inverted) ---
+  const maturityScore =
+    s(a['q01']) + s(a['q02']) + s(a['q03']) + s(a['q04']) +
+    s(a['q05']) + s(a['q06']) + s(a['q07']) + inv(a['q08']) +
+    s(a['q09']) + s(a['q10']) + s(a['q11']);
 
-  const totalScore = Object.values(score).reduce((a, b) => a + b, 0);
+  // Thresholds: ≥35 gut (80%), 20–34 ausbaufaehig, <20 minimal
   const maturity: MaturityLevel =
-    totalScore >= 7 ? 'gut' :
-    totalScore >= 3 ? 'ausbaufaehig' :
+    maturityScore >= 35 ? 'gut' :
+    maturityScore >= 20 ? 'ausbaufaehig' :
     'minimal';
+
+  // --- Key pain points (for WARP inbox and result display) ---
+  const topFactors: string[] = [];
+  if (s(a['q01']) <= 2 && a['q01']) topFactors.push('Fehlende Testtransparenz');
+  if (s(a['q02']) <= 2 && a['q02']) topFactors.push('Späte Problemerkennung');
+  if (s(a['q04']) <= 2 && a['q04']) topFactors.push('Fehler in Produktion');
+  if ((s(a['q05']) <= 2 || s(a['q06']) <= 2) && (a['q05'] || a['q06'])) topFactors.push('Unklare Rollen & Verantwortlichkeiten');
+  if (s(a['q07']) <= 2 && a['q07']) topFactors.push('Kein dokumentierter Testprozess');
+  if (s(a['q08']) >= 3 && a['q08']) topFactors.push('Hoher manueller Testanteil');
+  if (s(a['q09']) <= 2 && a['q09']) topFactors.push('Keine systematische Testunterstützung');
 
   return { top, scores: score, rationale, topFactors, maturity };
 }
