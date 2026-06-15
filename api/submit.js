@@ -1,13 +1,13 @@
 // Vercel Serverless Function – IMPULSE → WARP Postkorb
-// Uses native fetch (Node.js 18+); debug mode active until webhook is confirmed working.
 
 async function sendWarpWebhook(payload) {
-  // Take only the first word in case the env var has extra text (e.g. "https://... WARP_API_KEY")
+  // Trim in case the env var contains extra text after the URL
   const warpUrl = (process.env.WARP_WEBHOOK_URL || '').trim().split(/\s+/)[0];
   const apiKey = process.env.WARP_API_KEY;
 
   if (!warpUrl) {
-    throw new Error('WARP_WEBHOOK_URL not set');
+    console.warn('[IMPULSE] WARP_WEBHOOK_URL nicht gesetzt – Webhook übersprungen');
+    return;
   }
 
   const headers = { 'Content-Type': 'application/json' };
@@ -28,7 +28,7 @@ async function sendWarpWebhook(payload) {
     if (!res.ok) {
       throw new Error(`WARP returned ${res.status}: ${text}`);
     }
-    return { status: res.status, body: text };
+    console.log('[IMPULSE] Webhook OK:', res.status, text);
   } finally {
     clearTimeout(timer);
   }
@@ -45,24 +45,16 @@ module.exports = async function handler(req, res) {
   }
 
   if (!payload || !payload.userName || !payload.userEmail || !payload.recommendation) {
-    return res.status(400).json({ error: 'Missing required fields', received: payload });
+    return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const debug = {
-    warpUrl: process.env.WARP_WEBHOOK_URL || '(not set)',
-    hasApiKey: !!process.env.WARP_API_KEY,
-    webhookResult: null,
-    webhookError: null,
-  };
+  console.log(`[IMPULSE] ${payload.userName} (${payload.userEmail}): ${payload.recommendation}`);
 
   try {
-    const result = await sendWarpWebhook(payload);
-    debug.webhookResult = result;
-    console.log('[IMPULSE] Webhook OK:', result);
+    await sendWarpWebhook(payload);
   } catch (err) {
-    debug.webhookError = err.message;
-    console.error('[IMPULSE] Webhook failed:', err.message);
+    console.error('[IMPULSE] Webhook fehlgeschlagen (nicht kritisch):', err.message);
   }
 
-  res.status(200).json({ success: true, debug });
+  res.status(200).json({ success: true });
 };
