@@ -1,5 +1,5 @@
 
-import { Result, Recommendation } from './models';
+import { Result, Recommendation, MaturityLevel } from './models';
 
 interface EvalCtx {
   answers: Record<string, string | string[]>;
@@ -73,5 +73,11 @@ export function computeRecommendation(ctx: EvalCtx): Result {
   if (team === '10+')             topFactors.push('Großes Team (10+ Personen)');
   else if (team === '1-2')        topFactors.push('Kleines Team (1–2 Personen)');
 
-  return { top, scores: score, rationale, topFactors };
+  const totalScore = Object.values(score).reduce((a, b) => a + b, 0);
+  const maturity: MaturityLevel =
+    totalScore >= 7 ? 'gut' :
+    totalScore >= 3 ? 'ausbaufaehig' :
+    'minimal';
+
+  return { top, scores: score, rationale, topFactors, maturity };
 }

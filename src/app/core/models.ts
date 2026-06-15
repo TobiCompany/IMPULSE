@@ -50,9 +50,12 @@ export type Recommendation =
   | 'Exploratory Testing'
   | 'Continuous Testing';
 
+export type MaturityLevel = 'gut' | 'ausbaufaehig' | 'minimal';
+
 export interface Result {
   top: Recommendation;
   scores: Record<Recommendation, number>;
   rationale: string;
   topFactors: string[];
+  maturity: MaturityLevel;
 }

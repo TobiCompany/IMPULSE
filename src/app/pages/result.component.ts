@@ -9,6 +9,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { computeRecommendation } from '../core/evaluate';
+import { MaturityLevel } from '../core/models';
 import { QUESTIONNAIRE } from '../core/questionnaire';
 
 const ANSWERS_KEY = 'fk_answers_v1';
@@ -42,6 +43,27 @@ export function loadAnswer(index: number): string | null {
   return loadAnswers()[QUESTIONNAIRE.questions[index].id] ?? null;
 }
 
+const MATURITY_CONFIG: Record<MaturityLevel, { emoji: string; headline: string; text: string; color: string }> = {
+  gut: {
+    emoji: '😊',
+    headline: 'Ihr Testprozess ist solide aufgestellt',
+    text: 'Sie haben klare Strukturen und folgen einem definierten Vorgehen. Mit gezielten Optimierungen lässt sich Ihr Testprozess noch weiter stärken — unser Team zeigt Ihnen wie.',
+    color: '#15803d',
+  },
+  ausbaufaehig: {
+    emoji: '😐',
+    headline: 'Ihr Testprozess hat deutliches Verbesserungspotenzial',
+    text: 'Erste Ansätze sind erkennbar, aber es gibt noch erhebliches Potenzial. Mit strukturierten Maßnahmen können Sie Qualität und Effizienz Ihres Testings deutlich steigern.',
+    color: '#b45309',
+  },
+  minimal: {
+    emoji: '😕',
+    headline: 'Ihr Testprozess braucht dringend Aufmerksamkeit',
+    text: 'Systematisches Testen ist in Ihrer Organisation noch kaum verankert. Jetzt ist der richtige Zeitpunkt, mit externer Unterstützung eine solide Basis aufzubauen.',
+    color: '#b91c1c',
+  },
+};
+
 @Component({
   standalone: true,
   selector: 'app-result',
@@ -49,26 +71,58 @@ export function loadAnswer(index: number): string | null {
   template: `
   <div class="container">
     <div class="card">
-      <h2 *ngIf="!sent() && !error()">Ihre Antworten werden übermittelt</h2>
-      <h2 *ngIf="sent()">Vielen Dank &mdash; Ergebnisse versendet</h2>
-      <h2 *ngIf="error()">Übermittlung fehlgeschlagen</h2>
 
-      <div class="message">
-        <mat-progress-bar *ngIf="sending()" mode="indeterminate"></mat-progress-bar>
-        <p *ngIf="sending()">Ihre Antworten werden sicher an einen Sachbearbeiter übermittelt. Die Auswertung erfolgt im Hintergrund; Sie werden kontaktiert.</p>
-        <p *ngIf="sent()">Die Ergebnisse wurden an den zuständigen Sachbearbeiter gesendet. Sie werden benachrichtigt, sobald die Auswertung abgeschlossen ist.</p>
-        <p *ngIf="error()" style="color:#b91c1c">Beim Übermitteln ist ein Fehler aufgetreten. Bitte kontaktieren Sie uns direkt.</p>
-      </div>
+      <!-- Sending state -->
+      <ng-container *ngIf="sending()">
+        <h2>Ihre Antworten werden übermittelt&hellip;</h2>
+        <mat-progress-bar mode="indeterminate" style="margin:16px 0"></mat-progress-bar>
+        <p class="sub">Ihre Auswertung wird sicher an einen Sachbearbeiter übermittelt.</p>
+      </ng-container>
+
+      <!-- Success state: maturity front and centre -->
+      <ng-container *ngIf="sent()">
+        <div class="maturity-block">
+          <div class="maturity-emoji">{{ maturityEmoji() }}</div>
+          <h2 class="maturity-headline" [style.color]="maturityColor()">{{ maturityHeadline() }}</h2>
+          <p class="maturity-text">{{ maturityText() }}</p>
+        </div>
+        <p class="sub sent-note">
+          Ihre Ergebnisse wurden an den zuständigen Sachbearbeiter gesendet —
+          Sie werden kontaktiert, sobald die Auswertung abgeschlossen ist.
+        </p>
+      </ng-container>
+
+      <!-- Error state -->
+      <ng-container *ngIf="error()">
+        <h2>Übermittlung fehlgeschlagen</h2>
+        <p class="sub" style="color:#b91c1c">
+          Beim Übermitteln ist ein Fehler aufgetreten. Bitte kontaktieren Sie uns direkt.
+        </p>
+      </ng-container>
 
       <div class="actions">
         <button mat-raised-button color="primary" (click)="goStart()">Zur Startseite</button>
       </div>
+
     </div>
   </div>
   `,
   styles: [`
-    .message { margin: 16px 0; }
-    .actions { margin-top: 16px; display: flex; justify-content: flex-end; }
+    .container { display:flex; justify-content:center; align-items:flex-start; padding:32px 16px; }
+    .card { background:#fff; border-radius:12px; padding:32px 28px; max-width:480px; width:100%;
+            box-shadow:0 2px 16px rgba(0,0,0,.08); }
+
+    .maturity-block { text-align:center; padding:12px 0 20px; }
+    .maturity-emoji { font-size:4rem; line-height:1; margin-bottom:16px; }
+    .maturity-headline { font-size:1.2rem; font-weight:700; margin:0 0 12px; }
+    .maturity-text { font-size:.93rem; color:#444; line-height:1.6; margin:0; }
+
+    .sub { font-size:.88rem; color:#666; line-height:1.55; margin:12px 0; }
+    .sent-note { border-top:1px solid #e5e7eb; padding-top:14px; margin-top:4px; }
+
+    .actions { margin-top:20px; display:flex; justify-content:flex-end; }
+
+    h2 { font-size:1.15rem; font-weight:700; margin:0 0 8px; }
   `]
 })
 export class ResultComponent {
@@ -79,6 +133,11 @@ export class ResultComponent {
   sending = signal<boolean>(true);
   sent = signal<boolean>(false);
   error = signal<boolean>(false);
+
+  maturityEmoji = signal<string>('');
+  maturityHeadline = signal<string>('');
+  maturityText = signal<string>('');
+  maturityColor = signal<string>('#111');
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -93,6 +152,13 @@ export class ResultComponent {
     const userData = loadUserData();
     const result = computeRecommendation({ answers });
 
+    // Set maturity display immediately — independent of webhook success
+    const mc = MATURITY_CONFIG[result.maturity];
+    this.maturityEmoji.set(mc.emoji);
+    this.maturityHeadline.set(mc.headline);
+    this.maturityText.set(mc.text);
+    this.maturityColor.set(mc.color);
+
     const payload = {
       userName: userData.name || 'Unbekannt',
       userEmail: userData.email || '',
@@ -100,6 +166,7 @@ export class ResultComponent {
       scores: result.scores as Record<string, number>,
       rationale: result.rationale,
       topFactors: result.topFactors,
+      maturity: result.maturity,
     };
 
     try {
