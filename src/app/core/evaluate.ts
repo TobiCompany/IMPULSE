@@ -62,5 +62,16 @@ export function computeRecommendation(ctx: EvalCtx): Result {
     }
   })();
 
-  return { top, scores: score, rationale };
+  const topFactors: string[] = [];
+  if (prozess === 'agile')        topFactors.push('Agiles Entwicklungsumfeld');
+  else if (prozess === 'classic') topFactors.push('Klassischer Entwicklungsprozess');
+  else if (prozess === 'hybrid')  topFactors.push('Hybrides Vorgehen');
+  if (compliance === 'high')      topFactors.push('Hohe Compliance-Anforderungen');
+  if (req === 'uncertain')        topFactors.push('Hohe Anforderungsunsicherheit');
+  else if (req === 'partial')     topFactors.push('Teilweise unklare Anforderungen');
+  if (ci === 'ci-on')             topFactors.push('CI/CD-Pipeline aktiv');
+  if (team === '10+')             topFactors.push('Großes Team (10+ Personen)');
+  else if (team === '1-2')        topFactors.push('Kleines Team (1–2 Personen)');
+
+  return { top, scores: score, rationale, topFactors };
 }

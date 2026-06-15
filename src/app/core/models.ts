@@ -54,4 +54,5 @@ export interface Result {
   top: Recommendation;
   scores: Record<Recommendation, number>;
   rationale: string;
+  topFactors: string[];
 }
