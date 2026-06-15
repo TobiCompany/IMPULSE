@@ -10,6 +10,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { computeRecommendation } from '../core/evaluate';
 import { MaturityLevel } from '../core/models';
+import { loadContactPref } from './contact.component';
 import { QUESTIONNAIRE } from '../core/questionnaire';
 
 const ANSWERS_KEY = 'fk_answers_v1';
@@ -159,6 +160,7 @@ export class ResultComponent {
     this.maturityText.set(mc.text);
     this.maturityColor.set(mc.color);
 
+    const contactPref = loadContactPref();
     const payload = {
       userName: userData.name || 'Unbekannt',
       userEmail: userData.email || '',
@@ -167,6 +169,8 @@ export class ResultComponent {
       rationale: result.rationale,
       topFactors: result.topFactors,
       maturity: result.maturity,
+      contactPref: contactPref?.pref ?? null,
+      contactPhone: contactPref?.phone ?? null,
     };
 
     try {

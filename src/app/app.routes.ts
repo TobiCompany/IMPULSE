@@ -9,9 +9,13 @@ export const routes: Routes = [
     path: 'frage/:index',
     loadComponent: () => import('./pages/question.component').then(m => m.QuestionComponent)
   },
-  { 
-    path: 'ergebnis', 
-    loadComponent: () => import('./pages/result.component').then(m => m.ResultComponent) 
+  {
+    path: 'kontakt',
+    loadComponent: () => import('./pages/contact.component').then(m => m.ContactComponent)
+  },
+  {
+    path: 'ergebnis',
+    loadComponent: () => import('./pages/result.component').then(m => m.ResultComponent)
   },
   { 
     path: '**', 

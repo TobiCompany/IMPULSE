@@ -112,7 +112,7 @@ export class QuestionComponent {
   next() {
     const nextIndex = this.index() + 1;
     if (nextIndex < this.total()) this.router.navigate(['/frage', nextIndex]);
-    else this.router.navigate(['/ergebnis']);
+    else this.router.navigate(['/kontakt']);
   }
 
   progress = computed(() => (this.index()+1) / Math.max(1, this.total()) * 100);
