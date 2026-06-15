@@ -1,5 +1,4 @@
 // Vercel Serverless Function – IMPULSE → WARP Postkorb
-// Returns 200 to the user regardless of webhook outcome (fire-and-best-effort).
 
 const https = require('https');
 const http = require('http');
@@ -13,8 +12,7 @@ function sendWarpWebhook(payload) {
     const apiKey = process.env.WARP_API_KEY;
 
     if (!warpUrl) {
-      console.warn('[IMPULSE] WARP_WEBHOOK_URL not set – skipping webhook');
-      return resolve();
+      return reject(new Error('WARP_WEBHOOK_URL not set in environment'));
     }
 
     let parsed;
@@ -45,16 +43,15 @@ function sendWarpWebhook(payload) {
       res.on('data', (chunk) => { data += chunk; });
       res.on('end', () => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          console.log('[IMPULSE] WARP webhook OK:', res.statusCode);
-          resolve();
+          resolve({ status: res.statusCode, body: data });
         } else {
-          reject(new Error(`WARP webhook ${res.statusCode}: ${data}`));
+          reject(new Error(`WARP returned ${res.statusCode}: ${data}`));
         }
       });
     });
 
     req.setTimeout(TIMEOUT_MS, () => {
-      req.destroy(new Error(`WARP webhook timed out after ${TIMEOUT_MS}ms`));
+      req.destroy(new Error(`Timeout after ${TIMEOUT_MS}ms`));
     });
 
     req.on('error', reject);
@@ -68,24 +65,33 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Vercel parses JSON automatically, but handle string body too
   let payload = req.body;
   if (typeof payload === 'string') {
     try { payload = JSON.parse(payload); } catch { payload = null; }
   }
 
   if (!payload || !payload.userName || !payload.userEmail || !payload.recommendation) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: 'Missing required fields', received: payload });
   }
 
-  console.log(`[IMPULSE] ${payload.userName} (${payload.userEmail}): ${payload.recommendation}`);
+  const debug = {
+    hasWarpUrl: !!process.env.WARP_WEBHOOK_URL,
+    warpHost: process.env.WARP_WEBHOOK_URL
+      ? (() => { try { return new URL(process.env.WARP_WEBHOOK_URL).hostname; } catch { return 'invalid-url'; } })()
+      : null,
+    hasApiKey: !!process.env.WARP_API_KEY,
+    webhookResult: null,
+    webhookError: null,
+  };
 
-  // Attempt webhook – never let it fail the user's response
   try {
-    await sendWarpWebhook(payload);
+    const result = await sendWarpWebhook(payload);
+    debug.webhookResult = result;
+    console.log('[IMPULSE] Webhook OK:', result);
   } catch (err) {
-    console.error('[IMPULSE] Webhook failed (non-fatal):', err.message);
+    debug.webhookError = err.message;
+    console.error('[IMPULSE] Webhook failed:', err.message);
   }
 
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, debug });
 };
