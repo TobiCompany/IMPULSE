@@ -2,7 +2,6 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 export const CONTACT_KEY = 'fk_contact_pref';
@@ -20,16 +19,16 @@ export function loadContactPref(): ContactPref | null {
   } catch { return null; }
 }
 
-const OPTIONS: { id: ContactPref['pref']; label: string; icon: string; desc: string }[] = [
-  { id: 'email',   icon: '✉️', label: 'Per E-Mail',            desc: 'Wir schreiben Ihnen an die angegebene Adresse.' },
-  { id: 'telefon', icon: '📞', label: 'Per Telefon',           desc: 'Wir rufen Sie zurück — bitte Nummer angeben.'  },
-  { id: 'beide',   icon: '✉️📞', label: 'E-Mail und Telefon', desc: 'Wir melden uns auf beiden Wegen.'              },
+const OPTIONS: { id: ContactPref['pref']; label: string; desc: string }[] = [
+  { id: 'email',   label: 'Per E-Mail',          desc: 'Wir schreiben Ihnen an die angegebene Adresse.' },
+  { id: 'telefon', label: 'Per Telefon',          desc: 'Wir rufen Sie zurück — bitte Nummer angeben.'  },
+  { id: 'beide',   label: 'E-Mail und Telefon',   desc: 'Wir melden uns auf beiden Wegen.'              },
 ];
 
 @Component({
   standalone: true,
   selector: 'app-contact',
-  imports: [CommonModule, FormsModule, MatButtonModule, MatProgressBarModule],
+  imports: [CommonModule, FormsModule, MatProgressBarModule],
   template: `
   <div class="container">
     <div class="progress">
@@ -45,14 +44,10 @@ const OPTIONS: { id: ContactPref['pref']; label: string; icon: string; desc: str
         <button
           *ngFor="let opt of options"
           class="option"
-          mat-stroked-button
           [class.active]="selected() === opt.id"
           (click)="select(opt.id)">
-          <span class="opt-icon">{{ opt.icon }}</span>
-          <span class="opt-text">
-            <strong>{{ opt.label }}</strong>
-            <small>{{ opt.desc }}</small>
-          </span>
+          <strong>{{ opt.label }}</strong>
+          <span class="opt-desc">{{ opt.desc }}</span>
         </button>
       </div>
 
@@ -70,8 +65,7 @@ const OPTIONS: { id: ContactPref['pref']; label: string; icon: string; desc: str
 
       <div class="actions">
         <button
-          mat-raised-button
-          color="primary"
+          class="submit-btn"
           [disabled]="!selected()"
           (click)="submit()">
           Jetzt abschicken
@@ -91,17 +85,16 @@ const OPTIONS: { id: ContactPref['pref']; label: string; icon: string; desc: str
 
     .options { display:grid; gap:10px; margin-bottom:16px; }
     .option {
-      display:flex; align-items:center; gap:12px;
-      padding:14px 16px; border-radius:12px;
-      text-align:left; justify-content:flex-start;
-      transition:all .18s;
+      display:flex; flex-direction:column; align-items:flex-start; gap:3px;
+      padding:14px 18px; border-radius:12px; border:1.5px solid #d1d5db;
+      background:#fff; cursor:pointer; text-align:left; width:100%;
+      transition:border-color .15s, background .15s, color .15s;
     }
-    .option.active { background:rgba(69,29,199,.85); color:#fff; border-color:#451DC7; }
-    .opt-icon { font-size:1.4rem; flex-shrink:0; }
-    .opt-text { display:flex; flex-direction:column; gap:2px; }
-    .opt-text strong { font-size:.95rem; }
-    .opt-text small { font-size:.78rem; opacity:.75; }
-    .option.active .opt-text small { opacity:.85; }
+    .option:hover { border-color:#451DC7; }
+    .option.active { background:rgba(69,29,199,.88); color:#fff; border-color:#451DC7; }
+    .option strong { font-size:.95rem; font-weight:600; }
+    .opt-desc { font-size:.78rem; opacity:.7; }
+    .option.active .opt-desc { opacity:.85; }
 
     .phone-wrap { margin-bottom:16px; }
     .phone-label { display:block; font-size:.82rem; font-weight:600; margin-bottom:6px; color:#333; }
@@ -112,10 +105,16 @@ const OPTIONS: { id: ContactPref['pref']; label: string; icon: string; desc: str
     }
     .phone-input:focus { border-color:#451DC7; }
 
-    .actions { display:flex; justify-content:flex-end; }
+    .actions { display:flex; justify-content:flex-end; margin-top:4px; }
+    .submit-btn {
+      background:#451DC7; color:#fff; border:none; border-radius:8px;
+      padding:11px 24px; font-size:.95rem; font-weight:600; cursor:pointer;
+      transition:background .15s;
+    }
+    .submit-btn:hover:not(:disabled) { background:#3a17a8; }
+    .submit-btn:disabled { background:#a0aec0; cursor:not-allowed; }
     ::ng-deep .mat-mdc-progress-bar-fill::after { background-color:#451DC7 !important; }
     ::ng-deep .mdc-linear-progress__bar-inner { background-color:#451DC7 !important; }
-    ::ng-deep .mat-mdc-raised-button[color="primary"] { background-color:#451DC7 !important; }
   `]
 })
 export class ContactComponent {
