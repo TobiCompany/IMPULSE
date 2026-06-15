@@ -74,11 +74,13 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required fields', received: payload });
   }
 
+  const rawUrl = process.env.WARP_WEBHOOK_URL || '';
+  let parsedDebug = null;
+  try { const u = new URL(rawUrl); parsedDebug = { host: u.hostname, path: u.pathname, search: u.search }; } catch {}
   const debug = {
-    hasWarpUrl: !!process.env.WARP_WEBHOOK_URL,
-    warpHost: process.env.WARP_WEBHOOK_URL
-      ? (() => { try { return new URL(process.env.WARP_WEBHOOK_URL).hostname; } catch { return 'invalid-url'; } })()
-      : null,
+    hasWarpUrl: !!rawUrl,
+    warpUrl: rawUrl,   // show full URL for debugging
+    warpParsed: parsedDebug,
     hasApiKey: !!process.env.WARP_API_KEY,
     webhookResult: null,
     webhookError: null,
