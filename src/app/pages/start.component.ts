@@ -85,6 +85,10 @@ export class StartComponent {
     if (form && form.invalid) {
       return;
     }
+    // Alte Session-Daten löschen, damit Fragen nicht vorausgefüllt sind
+    localStorage.removeItem('fk_answers_v1');
+    localStorage.removeItem('fk_contact_pref');
+
     // Speichere Nutzerdaten vor Weiterleitung
     const userData = {
       name: this.userName.trim(),
