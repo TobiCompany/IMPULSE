@@ -79,8 +79,8 @@ const MATURITY_CONFIG: Record<MaturityLevel, { emoji: string; headline: string; 
           <div class="teaser-icon">📋</div>
           <h2>Deine Auswertung ist bereit</h2>
           <p class="sub">
-            Deine Antworten wurden gespeichert. Unser System hat deinen Testprozess-Reifegrad
-            berechnet — möchtest du das Ergebnis sehen?
+            Deine Antworten wurden gespeichert. Unser System hat auf Basis deiner Antworten eine erste
+            Einschätzung deines Testprozesses erstellt — möchtest du das Ergebnis sehen?
           </p>
           <button class="reveal-btn" (click)="reveal()">
             Möchtest du dein Ergebnis sehen?
