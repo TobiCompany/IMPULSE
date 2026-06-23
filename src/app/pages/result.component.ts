@@ -73,11 +73,26 @@ const MATURITY_CONFIG: Record<MaturityLevel, { emoji: string; headline: string; 
   <div class="container">
     <div class="card">
 
+      <!-- Teaser: Ergebnis noch nicht aufgedeckt -->
+      <ng-container *ngIf="!revealed()">
+        <div class="teaser-block">
+          <div class="teaser-icon">📋</div>
+          <h2>Deine Auswertung ist bereit</h2>
+          <p class="sub">
+            Deine Antworten wurden gespeichert. Unser System hat deinen Testprozess-Reifegrad
+            berechnet — möchtest du das Ergebnis sehen?
+          </p>
+          <button class="reveal-btn" (click)="reveal()">
+            Möchtest du dein Ergebnis sehen?
+          </button>
+        </div>
+      </ng-container>
+
       <!-- Sending state -->
-      <ng-container *ngIf="sending()">
-        <h2>Ihre Antworten werden übermittelt&hellip;</h2>
+      <ng-container *ngIf="revealed() && sending()">
+        <h2>Deine Antworten werden übermittelt&hellip;</h2>
         <mat-progress-bar mode="indeterminate" style="margin:16px 0"></mat-progress-bar>
-        <p class="sub">Ihre Auswertung wird sicher an einen Sachbearbeiter übermittelt.</p>
+        <p class="sub">Deine Auswertung wird sicher an einen Sachbearbeiter übermittelt.</p>
       </ng-container>
 
       <!-- Success state: maturity front and centre -->
@@ -88,22 +103,24 @@ const MATURITY_CONFIG: Record<MaturityLevel, { emoji: string; headline: string; 
           <p class="maturity-text">{{ maturityText() }}</p>
         </div>
         <p class="sub sent-note">
-          Ihre Ergebnisse wurden an den zuständigen Sachbearbeiter gesendet —
-          Sie werden kontaktiert, sobald die Auswertung abgeschlossen ist.
+          Deine Ergebnisse wurden an den zuständigen Sachbearbeiter gesendet —
+          Du wirst kontaktiert, sobald die Auswertung abgeschlossen ist.
         </p>
+        <div class="actions">
+          <button mat-raised-button color="primary" (click)="goStart()">Zur Startseite</button>
+        </div>
       </ng-container>
 
       <!-- Error state -->
       <ng-container *ngIf="error()">
         <h2>Übermittlung fehlgeschlagen</h2>
         <p class="sub" style="color:#b91c1c">
-          Beim Übermitteln ist ein Fehler aufgetreten. Bitte kontaktieren Sie uns direkt.
+          Beim Übermitteln ist ein Fehler aufgetreten. Bitte kontaktiere uns direkt.
         </p>
+        <div class="actions">
+          <button mat-raised-button color="primary" (click)="goStart()">Zur Startseite</button>
+        </div>
       </ng-container>
-
-      <div class="actions">
-        <button mat-raised-button color="primary" (click)="goStart()">Zur Startseite</button>
-      </div>
 
     </div>
   </div>
@@ -112,6 +129,17 @@ const MATURITY_CONFIG: Record<MaturityLevel, { emoji: string; headline: string; 
     .container { display:flex; justify-content:center; align-items:flex-start; padding:32px 16px; }
     .card { background:#fff; border-radius:12px; padding:32px 28px; max-width:480px; width:100%;
             box-shadow:0 2px 16px rgba(0,0,0,.08); }
+
+    .teaser-block { text-align:center; padding:8px 0 4px; }
+    .teaser-icon { font-size:3.5rem; line-height:1; margin-bottom:16px; }
+    .teaser-block h2 { font-size:1.2rem; font-weight:700; margin:0 0 10px; }
+    .reveal-btn {
+      margin-top:20px;
+      background:#451DC7; color:#fff; border:none; border-radius:10px;
+      padding:14px 28px; font-size:1rem; font-weight:600; cursor:pointer;
+      width:100%; transition:background .15s;
+    }
+    .reveal-btn:hover { background:#3a17a8; }
 
     .maturity-block { text-align:center; padding:12px 0 20px; }
     .maturity-emoji { font-size:4rem; line-height:1; margin-bottom:16px; }
@@ -131,7 +159,8 @@ export class ResultComponent {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
 
-  sending = signal<boolean>(true);
+  revealed = signal<boolean>(false);
+  sending = signal<boolean>(false);
   sent = signal<boolean>(false);
   error = signal<boolean>(false);
 
@@ -140,7 +169,11 @@ export class ResultComponent {
   maturityText = signal<string>('');
   maturityColor = signal<string>('#111');
 
-  constructor() {
+  constructor() {}
+
+  reveal() {
+    this.revealed.set(true);
+    this.sending.set(true);
     if (isPlatformBrowser(this.platformId)) {
       this.submitResults();
     } else {
