@@ -17,7 +17,7 @@ import { Router } from '@angular/router';
       <div class="container">
         <h1>Welcher Testprozess passt?</h1>
         <p class="subtitle">
-          Beantworte 21 Fragen, um eine Empfehlung für den passenden Testprozess zu erhalten.
+          Beantworte 11 Fragen, um eine Empfehlung für den passenden Testprozess zu erhalten.
         </p>
         <form #startForm="ngForm" (ngSubmit)="start(startForm)">
           <div class="form-group">
