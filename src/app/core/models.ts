@@ -52,9 +52,12 @@ export type Recommendation =
 
 export type MaturityLevel = 'gut' | 'ausbaufaehig' | 'minimal';
 
+export interface DimensionScore { val: number; max: number; }
+
 export interface Result {
   top: Recommendation;
   scores: Record<Recommendation, number>;
+  dimensionScores: Record<string, DimensionScore>;
   rationale: string;
   topFactors: string[];
   maturity: MaturityLevel;

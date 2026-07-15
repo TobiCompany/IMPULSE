@@ -114,7 +114,7 @@ const MATURITY_CONFIG: Record<MaturityLevel, { headline: string; text: string; c
               <div class="bar-track">
                 <div class="bar-fill" [style.width.%]="e.pct" [class.bar-fill--top]="e.isTop"></div>
               </div>
-              <span class="bar-val">{{ e.val }}/12</span>
+              <span class="bar-val">{{ e.pct }}%</span>
             </div>
           </div>
         </div>
@@ -231,7 +231,7 @@ export class ResultComponent {
   maturityText = signal<string>('');
   maturityColor = signal<string>('#111');
   maturityBg = signal<string>('#f9fafb');
-  scoreEntries = signal<Array<{ key: string; val: number; pct: number; isTop: boolean }>>([]);
+  scoreEntries = signal<Array<{ key: string; val: number; max: number; pct: number; isTop: boolean }>>([]);
   topFactors = signal<string[]>([]);
 
   constructor() {}
@@ -258,15 +258,15 @@ export class ResultComponent {
     this.maturityColor.set(mc.color);
     this.maturityBg.set(mc.bg);
 
-    // Build sorted score entries for bar chart
-    const sorted = Object.entries(result.scores).sort((a, b) => b[1] - a[1]);
-    const topKey = sorted[0]?.[0] ?? '';
-    this.scoreEntries.set(sorted.map(([key, val]) => ({
-      key,
-      val,
-      pct: Math.min(Math.round((val / 12) * 100), 100),
-      isTop: key === topKey,
-    })));
+    // Build sorted dimension entries for bar chart
+    const dimEntries = Object.entries(result.dimensionScores)
+      .map(([key, { val, max }]) => ({
+        key, val, max,
+        pct: Math.min(Math.round((val / max) * 100), 100),
+      }))
+      .sort((a, b) => b.pct - a.pct);
+    const topDimKey = dimEntries[0]?.key ?? '';
+    this.scoreEntries.set(dimEntries.map(e => ({ ...e, isTop: e.key === topDimKey })));
     this.topFactors.set(result.topFactors ?? []);
 
     const contactPref = loadContactPref();
