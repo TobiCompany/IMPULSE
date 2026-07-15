@@ -44,24 +44,24 @@ export function loadAnswer(index: number): string | null {
   return loadAnswers()[QUESTIONNAIRE.questions[index].id] ?? null;
 }
 
-const MATURITY_CONFIG: Record<MaturityLevel, { emoji: string; headline: string; text: string; color: string }> = {
+const MATURITY_CONFIG: Record<MaturityLevel, { headline: string; text: string; color: string; bg: string }> = {
   gut: {
-    emoji: '😊',
     headline: 'Ihr Testprozess ist solide aufgestellt',
     text: 'Sie haben klare Strukturen und folgen einem definierten Vorgehen. Mit gezielten Optimierungen lässt sich Ihr Testprozess noch weiter stärken — unser Team zeigt Ihnen wie.',
     color: '#15803d',
+    bg: '#dcfce7',
   },
   ausbaufaehig: {
-    emoji: '😐',
     headline: 'Ihr Testprozess hat deutliches Verbesserungspotenzial',
     text: 'Erste Ansätze sind erkennbar, aber es gibt noch erhebliches Potenzial. Mit strukturierten Maßnahmen können Sie Qualität und Effizienz Ihres Testings deutlich steigern.',
     color: '#b45309',
+    bg: '#fef3c7',
   },
   minimal: {
-    emoji: '😕',
     headline: 'Ihr Testprozess braucht dringend Aufmerksamkeit',
     text: 'Systematisches Testen ist in Ihrer Organisation noch kaum verankert. Jetzt ist der richtige Zeitpunkt, mit externer Unterstützung eine solide Basis aufzubauen.',
     color: '#b91c1c',
+    bg: '#fee2e2',
   },
 };
 
@@ -95,13 +95,38 @@ const MATURITY_CONFIG: Record<MaturityLevel, { emoji: string; headline: string; 
         <p class="sub">Deine Auswertung wird sicher an einen Sachbearbeiter übermittelt.</p>
       </ng-container>
 
-      <!-- Success state: maturity front and centre -->
+      <!-- Success state -->
       <ng-container *ngIf="sent()">
-        <div class="maturity-block">
-          <div class="maturity-emoji">{{ maturityEmoji() }}</div>
-          <h2 class="maturity-headline" [style.color]="maturityColor()">{{ maturityHeadline() }}</h2>
+
+        <!-- Maturity badge -->
+        <div class="maturity-badge" [style.background]="maturityBg()" [style.borderColor]="maturityColor()">
+          <span class="maturity-label">Reifegrad-Einschätzung</span>
+          <span class="maturity-headline" [style.color]="maturityColor()">{{ maturityHeadline() }}</span>
           <p class="maturity-text">{{ maturityText() }}</p>
         </div>
+
+        <!-- Bar chart -->
+        <div class="chart-section" *ngIf="scoreEntries().length > 0">
+          <div class="chart-title">Methoden-Fit</div>
+          <div class="chart-bars">
+            <div class="bar-row" *ngFor="let e of scoreEntries()" [class.bar-row--top]="e.isTop">
+              <span class="bar-label" [title]="e.key">{{ e.key }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="e.pct" [class.bar-fill--top]="e.isTop"></div>
+              </div>
+              <span class="bar-val">{{ e.val }}/12</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Keywords -->
+        <div class="factors-section" *ngIf="topFactors().length > 0">
+          <div class="factors-label">Identifizierte Schwachstellen</div>
+          <div class="factors-chips">
+            <span class="factor-chip" *ngFor="let f of topFactors()">{{ f }}</span>
+          </div>
+        </div>
+
         <p class="sub sent-note">
           Deine Ergebnisse wurden an den zuständigen Sachbearbeiter gesendet —
           Du wirst kontaktiert, sobald die Auswertung abgeschlossen ist.
@@ -141,10 +166,48 @@ const MATURITY_CONFIG: Record<MaturityLevel, { emoji: string; headline: string; 
     }
     .reveal-btn:hover { background:#3a17a8; }
 
-    .maturity-block { text-align:center; padding:12px 0 20px; }
-    .maturity-emoji { font-size:4rem; line-height:1; margin-bottom:16px; }
-    .maturity-headline { font-size:1.2rem; font-weight:700; margin:0 0 12px; }
-    .maturity-text { font-size:.93rem; color:#444; line-height:1.6; margin:0; }
+    .maturity-badge {
+      border-radius:10px; border-left:4px solid; padding:16px 18px;
+      margin-bottom:20px;
+    }
+    .maturity-label {
+      font-size:.65rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.1em; color:#666; display:block; margin-bottom:6px;
+    }
+    .maturity-headline { font-size:1.05rem; font-weight:700; display:block; margin-bottom:8px; }
+    .maturity-text { font-size:.88rem; color:#444; line-height:1.6; margin:0; }
+
+    .chart-section { margin-bottom:18px; }
+    .chart-title {
+      font-size:.68rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.09em; color:#888; margin-bottom:10px;
+    }
+    .chart-bars { display:flex; flex-direction:column; gap:7px; }
+    .bar-row { display:flex; align-items:center; gap:8px; }
+    .bar-label {
+      width:150px; font-size:.78rem; color:#555; text-align:right;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink:0;
+    }
+    .bar-row--top .bar-label { font-weight:700; color:#111; }
+    .bar-track {
+      flex:1; height:10px; background:#e5e7eb;
+      border-radius:5px; overflow:hidden; min-width:40px;
+    }
+    .bar-fill { height:100%; border-radius:5px; background:#c4b5fd; transition:width .4s ease; }
+    .bar-fill--top { background:#451DC7; }
+    .bar-val { width:34px; font-size:.72rem; font-weight:700; color:#888; flex-shrink:0; }
+    .bar-row--top .bar-val { color:#451DC7; }
+
+    .factors-section { margin-bottom:16px; }
+    .factors-label {
+      font-size:.65rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.09em; color:#888; margin-bottom:8px;
+    }
+    .factors-chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .factor-chip {
+      font-size:.78rem; background:#eff6ff; border:1px solid #bfdbfe;
+      border-radius:999px; padding:3px 11px; color:#1d4ed8;
+    }
 
     .sub { font-size:.88rem; color:#666; line-height:1.55; margin:12px 0; }
     .sent-note { border-top:1px solid #e5e7eb; padding-top:14px; margin-top:4px; }
@@ -164,10 +227,12 @@ export class ResultComponent {
   sent = signal<boolean>(false);
   error = signal<boolean>(false);
 
-  maturityEmoji = signal<string>('');
   maturityHeadline = signal<string>('');
   maturityText = signal<string>('');
   maturityColor = signal<string>('#111');
+  maturityBg = signal<string>('#f9fafb');
+  scoreEntries = signal<Array<{ key: string; val: number; pct: number; isTop: boolean }>>([]);
+  topFactors = signal<string[]>([]);
 
   constructor() {}
 
@@ -188,10 +253,21 @@ export class ResultComponent {
 
     // Set maturity display immediately — independent of webhook success
     const mc = MATURITY_CONFIG[result.maturity];
-    this.maturityEmoji.set(mc.emoji);
     this.maturityHeadline.set(mc.headline);
     this.maturityText.set(mc.text);
     this.maturityColor.set(mc.color);
+    this.maturityBg.set(mc.bg);
+
+    // Build sorted score entries for bar chart
+    const sorted = Object.entries(result.scores).sort((a, b) => b[1] - a[1]);
+    const topKey = sorted[0]?.[0] ?? '';
+    this.scoreEntries.set(sorted.map(([key, val]) => ({
+      key,
+      val,
+      pct: Math.min(Math.round((val / 12) * 100), 100),
+      isTop: key === topKey,
+    })));
+    this.topFactors.set(result.topFactors ?? []);
 
     const contactPref = loadContactPref();
     const payload = {
