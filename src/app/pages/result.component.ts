@@ -132,7 +132,6 @@ const MATURITY_CONFIG: Record<MaturityLevel, { headline: string; text: string; c
           Du wirst kontaktiert, sobald die Auswertung abgeschlossen ist.
         </p>
         <div class="actions">
-          <button mat-raised-button color="primary" (click)="goStart()">Zur Startseite</button>
           <a class="wavestone-btn" href="https://wavestone.com/de" target="_blank" rel="noopener">Mehr über Wavestone</a>
         </div>
       </ng-container>
