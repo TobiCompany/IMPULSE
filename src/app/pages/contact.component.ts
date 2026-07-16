@@ -30,13 +30,17 @@ const OPTIONS: { id: ContactPref['pref']; label: string; desc: string }[] = [
   selector: 'app-contact',
   imports: [CommonModule, FormsModule, MatProgressBarModule],
   template: `
-  <div class="container">
-    <div class="progress">
-      <mat-progress-bar mode="determinate" [value]="100"></mat-progress-bar>
-      <small>Letzter Schritt</small>
-    </div>
-
+  <div class="page">
     <div class="card">
+
+      <div class="progress-header">
+        <span class="progress-label">Letzter Schritt</span>
+        <span class="progress-pct">100%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill"></div>
+      </div>
+
       <h2>Wie möchten Sie kontaktiert werden?</h2>
       <p class="sub">Unser Team meldet sich nach Auswertung Ihrer Antworten persönlich bei Ihnen.</p>
 
@@ -75,10 +79,15 @@ const OPTIONS: { id: ContactPref['pref']; label: string; desc: string }[] = [
   </div>
   `,
   styles: [`
-    .container { display:flex; flex-direction:column; align-items:center; padding:16px; }
-    .progress { width:100%; max-width:520px; margin-bottom:12px; }
-    .card { background:#fff; border-radius:12px; padding:28px 24px; max-width:520px;
-            width:100%; box-shadow:0 2px 16px rgba(0,0,0,.08); }
+    .page { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px 16px; }
+    .card { background:#fff; border-radius:16px; padding:28px 28px 24px; max-width:480px;
+            width:100%; box-shadow:0 8px 40px rgba(0,0,0,.18); }
+
+    .progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .progress-label { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#888; }
+    .progress-pct { font-size:.72rem; font-weight:700; color:#451DC7; }
+    .progress-track { height:6px; background:#e5e7eb; border-radius:99px; overflow:hidden; margin-bottom:22px; }
+    .progress-fill { height:100%; width:100%; background:linear-gradient(90deg,#451DC7,#2d9e6b); border-radius:99px; }
 
     h2 { font-size:1.15rem; font-weight:700; margin:0 0 6px; }
     .sub { font-size:.88rem; color:#666; margin:0 0 20px; }
