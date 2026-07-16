@@ -151,8 +151,7 @@ const MATURITY_CONFIG: Record<MaturityLevel, { headline: string; text: string; c
   </div>
   `,
   styles: [`
-    .container { display:flex; justify-content:center; align-items:flex-start; padding:32px 16px;
-      min-height:100vh; background: linear-gradient(135deg, #451DC7 0%, #2d9e6b 100%); }
+    .container { display:flex; justify-content:center; align-items:flex-start; padding:32px 16px; min-height:100vh; }
     .card { background:#fff; border-radius:12px; padding:32px 28px; max-width:480px; width:100%;
             box-shadow:0 2px 16px rgba(0,0,0,.08); }
 

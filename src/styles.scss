@@ -1,11 +1,17 @@
 
 @use './app/theme/material-theme' as *;
 
-html, body {
-  height: 100%;
+html {
+  min-height: 100%;
+  background: linear-gradient(135deg, #451DC7 0%, #2d9e6b 100%);
+  background-attachment: fixed;
+}
+
+body {
+  min-height: 100%;
   margin: 0;
   font-family: 'Roboto', 'Segoe UI', sans-serif;
-  background: #F7F8FA;
+  background: transparent;
   color: #191A1C;
 }
 
