@@ -133,6 +133,7 @@ const MATURITY_CONFIG: Record<MaturityLevel, { headline: string; text: string; c
         </p>
         <div class="actions">
           <button mat-raised-button color="primary" (click)="goStart()">Zur Startseite</button>
+          <a class="wavestone-btn" href="https://wavestone.com/de" target="_blank" rel="noopener">Mehr über Wavestone</a>
         </div>
       </ng-container>
 
@@ -212,7 +213,14 @@ const MATURITY_CONFIG: Record<MaturityLevel, { headline: string; text: string; c
     .sub { font-size:.88rem; color:#666; line-height:1.55; margin:12px 0; }
     .sent-note { border-top:1px solid #e5e7eb; padding-top:14px; margin-top:4px; }
 
-    .actions { margin-top:20px; display:flex; justify-content:flex-end; }
+    .actions { margin-top:20px; display:flex; justify-content:flex-end; gap:10px; align-items:center; }
+    .wavestone-btn {
+      display:inline-flex; align-items:center;
+      background:#fff; border:1.5px solid #451DC7; border-radius:8px;
+      padding:0 18px; height:36px; font-size:.88rem; font-weight:600;
+      color:#451DC7; text-decoration:none; transition:background .15s;
+    }
+    .wavestone-btn:hover { background:#f0ebff; }
 
     h2 { font-size:1.15rem; font-weight:700; margin:0 0 8px; }
   `]
