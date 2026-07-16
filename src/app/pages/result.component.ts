@@ -54,8 +54,8 @@ const MATURITY_CONFIG: Record<MaturityLevel, { headline: string; text: string; c
   ausbaufaehig: {
     headline: 'Ihr Testprozess hat deutliches Verbesserungspotenzial',
     text: 'Erste Ansätze sind erkennbar, aber es gibt noch erhebliches Potenzial. Mit strukturierten Maßnahmen können Sie Qualität und Effizienz Ihres Testings deutlich steigern.',
-    color: '#b45309',
-    bg: '#fef3c7',
+    color: '#1d4ed8',
+    bg: '#dbeafe',
   },
   minimal: {
     headline: 'Ihr Testprozess braucht dringend Aufmerksamkeit',
