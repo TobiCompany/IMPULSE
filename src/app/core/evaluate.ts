@@ -94,7 +94,7 @@ export function computeRecommendation(ctx: EvalCtx): Result {
     'Test-Transparenz':       { val: s(a['q01']) + s(a['q02']),       max: 8 },
     'Qualität & Fehlerrate':  { val: s(a['q03']) + s(a['q04']),       max: 8 },
     'Rollen & Verantwortung': { val: s(a['q05']) + s(a['q06']),       max: 8 },
-    'Prozessreife':           { val: s(a['q07']),                      max: 4 },
+    'Prozessdokumentation':   { val: s(a['q07']),                      max: 4 },
     'Automatisierung':        { val: inv(a['q08']) + s(a['q09']),      max: 8 },
     'Team & Motivation':      { val: s(a['q10']) + s(a['q11']),        max: 8 },
   };
