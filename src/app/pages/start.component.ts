@@ -36,8 +36,7 @@ import { Router } from '@angular/router';
             <mat-label>Ihre E-Mail-Adresse*</mat-label>
             <input matInput type="email" name="email" [(ngModel)]="userEmail"
                    placeholder="name@firma.de" #emailModel="ngModel" required email>
-            <mat-error *ngIf="emailModel.errors?.required">E-Mail ist erforderlich</mat-error>
-            <mat-error *ngIf="emailModel.errors?.email">Ungültige E-Mail-Adresse</mat-error>
+            <mat-error>Bitte geben Sie eine gültige E-Mail-Adresse ein</mat-error>
           </mat-form-field>
 
           <button class="submit-btn" type="submit" [disabled]="startForm.invalid">
