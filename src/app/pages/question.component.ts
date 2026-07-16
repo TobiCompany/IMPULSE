@@ -11,20 +11,24 @@ import { QUESTIONNAIRE } from '../core/questionnaire';
   selector: 'app-question',
   imports: [CommonModule, MatButtonModule, MatCardModule, MatProgressBarModule],
   template: `
-  <div class="container">
-    <div class="progress">
-      <mat-progress-bar mode="determinate" [value]="progress()"></mat-progress-bar>
-      <small>Frage {{ index()+1 }} von {{ total() }}</small>
-    </div>
-
+  <div class="page">
     <div class="card">
+
+      <!-- Fortschrittsindikator -->
+      <div class="progress-header">
+        <span class="progress-label">Frage {{ index()+1 }} von {{ total() }}</span>
+        <span class="progress-pct">{{ progress() | number:'1.0-0' }}%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+      </div>
+
       <h2>{{ q().text }}</h2>
 
       <div class="options">
         <button
           *ngFor="let c of q().choices"
           class="option"
-          mat-stroked-button
           (click)="toggle(c.id)"
           [class.active]="isSelected(c.id)">
           {{ c.label }}
@@ -32,33 +36,87 @@ import { QUESTIONNAIRE } from '../core/questionnaire';
       </div>
 
       <div class="actions">
-        <button mat-raised-button color="primary" (click)="next()" [disabled]="!selected()">Weiter</button>
+        <button class="next-btn" (click)="next()" [disabled]="!selected()">Weiter →</button>
       </div>
     </div>
   </div>
   `,
   styles: [`
-    .progress { margin: 8px 0 12px; }
-    .options { 
-      display: grid; 
-      gap: 12px; 
-      min-height: 200px; 
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
     }
-    .option { 
-      justify-content: flex-start; 
-      padding: 12px 16px; 
-      border-radius: 12px;
-      transition: all 0.2s ease;
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 28px 24px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
     }
-    .option.active { 
-      background-color: rgba(69, 29, 199, 0.8);
-      color: white;
-      border-color: #451DC7;
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
     }
-    .actions { margin-top: 16px; display: flex; justify-content: flex-end; }
-    ::ng-deep .mat-mdc-progress-bar-fill::after { background-color: #451DC7 !important; }
-    ::ng-deep .mdc-linear-progress__bar-inner { background-color: #451DC7 !important; }
-    ::ng-deep .mat-mdc-raised-button[color="primary"] { background-color: #451DC7 !important; }
+    .progress-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #888;
+    }
+    .progress-pct {
+      font-size: .72rem;
+      font-weight: 700;
+      color: #451DC7;
+    }
+    .progress-track {
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #451DC7, #2d9e6b);
+      border-radius: 99px;
+      transition: width .35s ease;
+    }
+
+    h2 { font-size: 1.15rem; font-weight: 700; margin: 0 0 20px; color: #111; line-height: 1.4; }
+
+    .options { display: grid; gap: 10px; }
+    .option {
+      width: 100%;
+      text-align: left;
+      padding: 13px 16px;
+      border-radius: 10px;
+      border: 1.5px solid #e5e7eb;
+      background: #fff;
+      font-size: .92rem;
+      color: #333;
+      cursor: pointer;
+      transition: border-color .15s, background .15s, color .15s;
+    }
+    .option:hover { border-color: #c4b5fd; background: #faf8ff; }
+    .option.active { background: #451DC7; color: #fff; border-color: #451DC7; }
+
+    .actions { margin-top: 20px; display: flex; justify-content: flex-end; }
+    .next-btn {
+      background: #451DC7; color: #fff; border: none;
+      border-radius: 10px; padding: 12px 28px;
+      font-size: .95rem; font-weight: 700; cursor: pointer;
+      transition: background .15s;
+    }
+    .next-btn:hover:not(:disabled) { background: #3a17a8; }
+    .next-btn:disabled { background: #c4b5fd; cursor: not-allowed; }
   `]
 })
 export class QuestionComponent {
